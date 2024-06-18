@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { TextField, Button, Select, MenuItem, FormControl, InputLabel, Grid, IconButton, InputAdornment } from '@mui/material';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth'; // Import Firebase Auth functions
 import { db } from '../../Firebase/Firebase'; // Import your Firestore db instance
-import { collection, addDoc } from 'firebase/firestore'; // Import Firestore functions
+import { collection, addDoc,setDoc,doc } from 'firebase/firestore'; // Import Firestore functions
 import { toast, ToastContainer } from 'react-toastify'; // Import toast for notifications
 import 'react-toastify/dist/ReactToastify.css'; // CSS for toast notifications
 import { Visibility, VisibilityOff } from '@mui/icons-material';
@@ -46,26 +46,32 @@ export default function AddUserForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     // Validate domain and customDomain fields
     if (!isValidDomain(formData.domain)) {
       toast.error('Invalid Domain. Please enter a valid domain.');
       return;
     }
-
+  
     if (!isValidDomain(formData.customDomain)) {
       toast.error('Invalid Custom Domain. Please enter a valid domain.');
       return;
     }
-
+  
+    // Check if passwords match
+    if (formData.password !== formData.confirmPassword) {
+      toast.error('Passwords do not match. Please enter matching passwords.');
+      return;
+    }
+  
     try {
       const auth = getAuth(); // Initialize Firebase Auth instance
       const { email, password } = formData;
-
+  
       // Create user with email and password
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-
+  
       // Prepare data to save in Firestore
       const completeFormData = {
         ...formData,
@@ -76,13 +82,13 @@ export default function AddUserForm() {
         userProfile: '',
         userId: user.uid // Save Firebase Authentication UID in Firestore
       };
-
+  
       // Determine collection based on service type (app or web)
       const collectionName = serviceType === 'app' ? 'appDevelopment' : 'webDevelopment';
-
-      // Save data to Firestore
-      await addDoc(collection(db, collectionName), completeFormData);
-
+  
+      // Explicitly set document ID to user.uid
+      await setDoc(doc(db, collectionName, user.uid), completeFormData);
+  
       toast.success('User added successfully');
       console.log('User added successfully:', completeFormData);
       resetForm();
@@ -91,6 +97,7 @@ export default function AddUserForm() {
       toast.error('Error adding user');
     }
   };
+  
 
   const resetForm = () => {
     setFormData({
