@@ -21,6 +21,9 @@ const Sidebar = () => {
       <ListItem button component={Link} to="web-development">
         <ListItemText primary="Web Development" />
       </ListItem>
+      <ListItem button component={Link} to="user-registration">
+        <ListItemText primary="User Registration" />
+      </ListItem>
       <button onClick={handleLogout}>Logout</button>
     </List>
   );
