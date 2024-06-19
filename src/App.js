@@ -5,9 +5,11 @@ import Login from './Auth/Login';
 import PrivateRoute from './Private/PrivateRoute';
 import Dashboard from './Admin/Dashboard';
 import AppDevelopment from './pages/appDevelopment';
-import AppDevelopmentDetail from './pages/AppDevelopmentDetail/appDevelopmentDetail';
+import AppDevelopmentDetail from './pages/Details/AppDevelopmentDetail/appDevelopmentDetail';
 import WebDevelopment from './pages/webDevelopment'; // Import WebDevelopment component
-import WebDevelopmentDetail from './pages/WebDevelopmentDetail/webDevelopmentDetail'; // Import WebDevelopmentDetail component
+import WebDevelopmentDetail from './pages/Details/WebDevelopmentDetail/webDevelopmentDetail'; // Import WebDevelopmentDetail component
+import Employee from './pages/employee';
+import Intern from './pages/intern';
 
 const AppRoutes = () => {
   return (
@@ -18,6 +20,8 @@ const AppRoutes = () => {
       <Route path="/app-development/:id" element={<AppDevelopmentDetail />} />
       <Route path="/web-development" element={<WebDevelopment />} />
       <Route path="/web-development/:id" element={<WebDevelopmentDetail />} />
+      <Route path="/admin/employee-details" element={<Employee />} />
+      <Route path="/intern-details" element={<Intern />} />
     </Routes>
   );
 };

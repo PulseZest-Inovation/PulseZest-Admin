@@ -12,12 +12,18 @@ import {
   Paper,
   Typography,
   Button,
-  TextField
+  TextField,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions
 } from '@mui/material';
 
 export default function AppDevelopment() {
   const [appData, setAppData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [openDialog, setOpenDialog] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -48,8 +54,17 @@ export default function AppDevelopment() {
     return fullName.includes(query) || email.includes(query);
   });
 
+  const handleViewDetails = (item) => {
+    setSelectedItem(item);
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
+
   return (
-    <div>
+    <div style={{ overflow: 'auto', maxHeight: '500px' }}>
       <Typography variant="h4" gutterBottom>
         App Development Data
       </Typography>
@@ -81,10 +96,9 @@ export default function AppDevelopment() {
                 <TableCell>{item.registrationDate}</TableCell>
                 <TableCell>
                   <Button
-                    component={Link}
-                    to={`/app-development/${item.id}`}
                     variant="contained"
                     color="primary"
+                    onClick={() => handleViewDetails(item)}
                   >
                     View Details
                   </Button>
@@ -94,6 +108,23 @@ export default function AppDevelopment() {
           </TableBody>
         </Table>
       </TableContainer>
+
+      {/* Dialog for showing detailed view */}
+      <Dialog open={openDialog} onClose={handleCloseDialog}>
+        <DialogTitle>Details for {selectedItem?.fullName}</DialogTitle>
+        <DialogContent>
+          <Typography><strong>Email Address:</strong> {selectedItem?.email}</Typography>
+          <Typography><strong>Website Name:</strong> {selectedItem?.websiteName}</Typography>
+          <Typography><strong>Registration Date:</strong> {selectedItem?.registrationDate}</Typography>
+          {/* Add more fields as needed */}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog} color="primary">
+            Close
+          </Button>
+          {/* Add additional actions if required */}
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }

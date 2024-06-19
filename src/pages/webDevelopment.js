@@ -49,7 +49,7 @@ export default function WebDevelopment() {
   });
 
   return (
-    <div>
+    <div style={{ overflow: 'auto', maxHeight: '500px' }}>
       <Typography variant="h4" gutterBottom align="center">
         Web Development Data
       </Typography>
