@@ -6,10 +6,11 @@ import PrivateRoute from './Private/PrivateRoute';
 import Dashboard from './Admin/Dashboard';
 import AppDevelopment from './pages/appDevelopment';
 import AppDevelopmentDetail from './pages/Details/AppDevelopmentDetail/appDevelopmentDetail';
-import WebDevelopment from './pages/webDevelopment'; // Import WebDevelopment component
-import WebDevelopmentDetail from './pages/Details/WebDevelopmentDetail/webDevelopmentDetail'; // Import WebDevelopmentDetail component
+import WebDevelopment from './pages/webDevelopment';
+import WebDevelopmentDetail from './pages/Details/WebDevelopmentDetail/webDevelopmentDetail';
 import Employee from './pages/employee';
 import Intern from './pages/intern';
+import EmployeeDetails from './pages/Details/EmployeeDetails/employeeDetails'; // Ensure correct import and case sensitivity
 
 const AppRoutes = () => {
   return (
@@ -20,8 +21,9 @@ const AppRoutes = () => {
       <Route path="/app-development/:id" element={<AppDevelopmentDetail />} />
       <Route path="/web-development" element={<WebDevelopment />} />
       <Route path="/web-development/:id" element={<WebDevelopmentDetail />} />
-      <Route path="/admin/employee-details" element={<Employee />} />
-      <Route path="/intern-details" element={<Intern />} />
+      <Route path="/employee-details" element={<Employee />} /> 
+      <Route path="/employee-details/:id" element={<EmployeeDetails />} /> 
+      <Route path="/intern-details" element={<Intern />} /> 
     </Routes>
   );
 };

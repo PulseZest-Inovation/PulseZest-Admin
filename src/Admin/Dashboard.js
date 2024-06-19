@@ -9,6 +9,9 @@ import AppDevelopment from "../pages/appDevelopment"
 import WebDevelopment from "../pages/webDevelopment"
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import UserResgistration from '../pages/UserRegister';
+import Employee from '../pages/employee';
+import Intern from '../pages/intern';
+
 const drawerWidth = 240;
 
 const Root = styled('div')(({ theme }) => ({
@@ -105,7 +108,8 @@ const Dashboard = () => {
         <Route path="app-development" element={<AppDevelopment />} />
         <Route path="web-development" element={<WebDevelopment />} />
         <Route path="user-registration" element={<UserResgistration />} />
-
+        <Route path="employee-details" element={<Employee />} />
+        <Route path="intern-details" element={<Intern />} />
                  <Route path="/" element={<Home />} />
       </Routes>
     </Layout>
