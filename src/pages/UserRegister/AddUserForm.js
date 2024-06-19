@@ -126,7 +126,7 @@ export default function AddUserForm() {
 
   return (
     <div>
-      <h1>User Form</h1>
+      <h1>Client Form</h1>
       <form onSubmit={handleSubmit} style={{ width: '100%' }}>
         <Grid container spacing={2}>
           <Grid item xs={12}>

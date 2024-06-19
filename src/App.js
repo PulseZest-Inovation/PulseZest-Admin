@@ -11,6 +11,7 @@ import WebDevelopmentDetail from './pages/Details/WebDevelopmentDetail/webDevelo
 import Employee from './pages/employee';
 import Intern from './pages/intern';
 import EmployeeDetails from './pages/Details/EmployeeDetails/employeeDetails'; // Ensure correct import and case sensitivity
+import InternDetails from './pages/Details/InternDetails/internDetails';
 
 const AppRoutes = () => {
   return (
@@ -24,6 +25,7 @@ const AppRoutes = () => {
       <Route path="/employee-details" element={<Employee />} /> 
       <Route path="/employee-details/:id" element={<EmployeeDetails />} /> 
       <Route path="/intern-details" element={<Intern />} /> 
+      <Route path="/intern-details/:id" element={<InternDetails />} /> 
     </Routes>
   );
 };
