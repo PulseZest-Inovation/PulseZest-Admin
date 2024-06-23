@@ -26,6 +26,7 @@ export default function AddUserForm() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -94,7 +95,8 @@ export default function AddUserForm() {
       resetForm();
     } catch (error) {
       console.error('Error adding user: ', error);
-      toast.error('Error adding user');
+    } finally {
+      setLoading(false); // End loading
     }
   };
 
@@ -196,9 +198,16 @@ export default function AddUserForm() {
             />
           </Grid>
           <Grid item xs={12}>
-            <Button variant="contained" color="primary" type="submit" fullWidth>
-              Save
-            </Button>
+          <Button
+  variant="contained"
+  color="primary"
+  type="submit"
+  fullWidth
+  disabled={loading}
+>
+  {loading ? 'Saving...' : 'Save'}
+</Button>
+
           </Grid>
         </Grid>
       </form>

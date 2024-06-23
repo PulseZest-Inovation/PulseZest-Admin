@@ -41,6 +41,7 @@ const EmployeeForm = () => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
@@ -127,6 +128,8 @@ const EmployeeForm = () => {
     } catch (error) {
       console.error("Error:", error);
       toast.error("Failed to save employee details. Please try again later.");
+    } finally {
+      setLoading(false); // End loading
     }
   };
 
@@ -259,55 +262,62 @@ const EmployeeForm = () => {
             { name: 'panCard', label: 'Upload Pan Card' }
           ].map((field, index) => (
             <Grid item xs={12} md={6} key={index}>
+              <Button
+                variant="contained"
+                component="label"
+                fullWidth
+              >
+                {field.label}
+                <input
+                  type="file"
+                  name={field.name}
+                  hidden
+                  onChange={handleChange}
+                />
+              </Button>
+            </Grid>
+          ))}
+
+          {/* Bank Details */}
+          <Grid item xs={12}>
+            <h2>Bank Details</h2>
+          </Grid>
+          {[
+            { name: 'bankAccountNumber', label: 'Bank Account Number' },
+            { name: 'bankName', label: 'Bank Name' },
+            { name: 'ifscCode', label: 'IFSC Code' },
+            { name: 'accountHolderName', label: 'Account Holder Name' }
+          ].map((field, index) => (
+            <Grid item xs={12} md={4} key={index}>
+              <TextField
+                fullWidth
+                label={field.label}
+                name={field.name}
+                value={formData[field.name]}
+                onChange={handleChange}
+                required={true}
+              />
+            </Grid>
+          ))}
+
+          {/* Submit Button */}
+          <Grid item xs={12}>
             <Button
               variant="contained"
-              component="label"
+              color="primary"
+              type="submit"
               fullWidth
+              disabled={loading}
             >
-              {field.label}
-              <input
-                type="file"
-                name={field.name}
-                hidden
-                onChange={handleChange}
-              />
+              {loading ? 'Saving...' : 'Save'}
             </Button>
-          </Grid>
-        ))}
 
-        {/* Bank Details */}
-        <Grid item xs={12}>
-          <h2>Bank Details</h2>
-        </Grid>
-        {[
-          { name: 'bankAccountNumber', label: 'Bank Account Number' },
-          { name: 'bankName', label: 'Bank Name' },
-          { name: 'ifscCode', label: 'IFSC Code' },
-          { name: 'accountHolderName', label: 'Account Holder Name' }
-        ].map((field, index) => (
-          <Grid item xs={12} md={4} key={index}>
-            <TextField
-              fullWidth
-              label={field.label}
-              name={field.name}
-              value={formData[field.name]}
-              onChange={handleChange}
-              required={true}
-            />
           </Grid>
-        ))}
-
-        {/* Submit Button */}
-        <Grid item xs={12}>
-          <Button variant="contained" color="primary" type="submit" fullWidth>
-            Save
-          </Button>
         </Grid>
-      </Grid>
-    </form>
-    <ToastContainer />
-  </div>
-);
+      </form>
+      <ToastContainer />
+    </div>
+  );
 };
 
 export default EmployeeForm;

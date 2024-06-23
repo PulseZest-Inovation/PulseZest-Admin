@@ -3,9 +3,10 @@ import { TextField, Button, Grid, IconButton, InputAdornment, MenuItem } from '@
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { auth, db } from '../../Firebase/Firebase'; // Adjust path as per your project structure
+import { auth, db, storage } from '../../Firebase/Firebase'; // Adjust path as per your project structure
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { setDoc, doc, serverTimestamp } from 'firebase/firestore'; // Import serverTimestamp for date of registration
+import { setDoc, doc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const InternForm = () => {
     const [formData, setFormData] = useState({
@@ -16,14 +17,23 @@ const InternForm = () => {
         phoneNumber: '',
         qualification: '',
         internshipMonths: '',
+        resume: null, // Add resume to formData
     });
 
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
+
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
+    };
+
+    const handleFileChange = (e) => {
+        if (e.target.files[0]) {
+            setFormData({ ...formData, resume: e.target.files[0] });
+        }
     };
 
     const handleTogglePasswordVisibility = () => {
@@ -45,9 +55,17 @@ const InternForm = () => {
 
         try {
             // Create user account with email and password
-            const { email, password, fullName, phoneNumber, qualification, internshipMonths } = formData;
+            const { email, password, fullName, phoneNumber, qualification, internshipMonths, resume } = formData;
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const userId = userCredential.user.uid;
+
+            // Upload resume to Firebase Storage
+            let resumeURL = '';
+            if (resume) {
+                const resumeRef = ref(storage,  `resumes/${userId}`);
+                await uploadBytes(resumeRef, resume);
+                resumeURL = await getDownloadURL(resumeRef);
+            }
 
             // Additional data to store in Firestore
             const additionalData = {
@@ -56,7 +74,9 @@ const InternForm = () => {
                 phoneNumber,
                 qualification,
                 internshipMonths,
+                resumeURL,
                 userType: 'intern',
+                password, // Not recommended to store plaintext password, should hash it
                 dateOfRegistration: new Date().toISOString().split('T')[0], // Today's date in YYYY-MM-DD format
             };
 
@@ -72,6 +92,7 @@ const InternForm = () => {
                 phoneNumber: '',
                 qualification: '',
                 internshipMonths: '',
+                resume: null,
             });
 
             // Show success message
@@ -79,8 +100,10 @@ const InternForm = () => {
         } catch (error) {
             console.error('Error submitting form:', error);
             toast.error('Failed to save intern details. Please try again.');
-        }
-    };
+        } finally {
+            setLoading(false); // End loading
+          }
+        };
 
     return (
         <div>
@@ -139,9 +162,31 @@ const InternForm = () => {
                         </Grid>
                     ))}
                     <Grid item xs={12}>
-                        <Button variant="contained" color="primary" type="submit" fullWidth>
-                            Save
+                        <Button
+                            variant="contained"
+                            component="label"
+                            fullWidth
+                        >
+                            Upload Resume
+                            <input
+                                type="file"
+                                hidden
+                                accept=".pdf, .png, .jpg, .jpeg"
+                                onChange={handleFileChange}
+                            />
                         </Button>
+                    </Grid>
+                    <Grid item xs={12}>
+                    <Button
+  variant="contained"
+  color="primary"
+  type="submit"
+  fullWidth
+  disabled={loading}
+>
+  {loading ? 'Saving...' : 'Save'}
+</Button>
+
                     </Grid>
                 </Grid>
             </form>
