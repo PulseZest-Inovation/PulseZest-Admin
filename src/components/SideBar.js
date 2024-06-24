@@ -30,6 +30,9 @@ const Sidebar = () => {
       <ListItem button component={Link} to="user-registration">
         <ListItemText primary="User Registration" />
       </ListItem>
+      <ListItem button component={Link} to="user-attendance">
+        <ListItemText primary="User Attendance" />
+      </ListItem>
       <button onClick={handleLogout}>Logout</button>
     </List>
   );

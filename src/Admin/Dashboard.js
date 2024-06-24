@@ -11,6 +11,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import UserResgistration from '../pages/UserRegister';
 import Employee from '../pages/employee';
 import Intern from '../pages/intern';
+import AttendancePage from '../components/Attendance/AttendancePage';
 
 const drawerWidth = 240;
 
@@ -110,6 +111,7 @@ const Dashboard = () => {
         <Route path="user-registration" element={<UserResgistration />} />
         <Route path="employee-details" element={<Employee />} />
         <Route path="intern-details" element={<Intern />} />
+        <Route path="user-attendance" element={<AttendancePage />} />
                  <Route path="/" element={<Home />} />
       </Routes>
     </Layout>
