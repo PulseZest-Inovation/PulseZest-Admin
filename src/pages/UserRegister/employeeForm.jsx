@@ -46,7 +46,13 @@ const EmployeeForm = () => {
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
     if (type === 'file') {
-      setFormData({ ...formData, [name]: files[0] });
+      const fileName = files[0] ? files[0].name : '';
+      setFormData({ ...formData, [name]: files[0], [`${name}Name`]: fileName });
+    } else if (name === 'phoneNumber' || name === 'alternativePhoneNumber' || name === 'bankAccountNumber') {
+      const regex = /^[0-9]*$/;
+      if (regex.test(value)) {
+        setFormData({ ...formData, [name]: value });
+      }
     } else {
       setFormData({ ...formData, [name]: value });
     }
@@ -73,6 +79,8 @@ const EmployeeForm = () => {
       toast.error("Passwords do not match.");
       return;
     }
+
+    setLoading(true);
 
     try {
       // 1. Register user in authentication service (Firebase Auth)
@@ -164,9 +172,13 @@ const EmployeeForm = () => {
       teamsId: '',
       department: [],
       passportPhoto: null,
+      passportPhotoName: '',
       resume: null,
+      resumeName: '',
       aadharCard: null,
+      aadharCardName: '',
       panCard: null,
+      panCardName: '',
       bankAccountNumber: '',
       bankName: '',
       ifscCode: '',
@@ -235,8 +247,7 @@ const EmployeeForm = () => {
                 renderValue={(selected) => selected.join(', ')}
                 MenuProps={{
                   PaperProps: {
-                    style: {
-                      maxHeight: 300,
+                    style: {                      maxHeight: 300,
                     },
                   },
                 }}
@@ -256,10 +267,10 @@ const EmployeeForm = () => {
             <h2>Documents</h2>
           </Grid>
           {[
-            { name: 'passportPhoto', label: 'Upload Passport Size Photo' },
-            { name: 'resume', label: 'Upload Resume' },
-            { name: 'aadharCard', label: 'Upload Aadhar Card' },
-            { name: 'panCard', label: 'Upload Pan Card' }
+            { name: 'passportPhoto', label: 'Upload Passport Size Photo', acceptedFormats: 'image/*' },
+            { name: 'resume', label: 'Upload Resume (PDF only)', acceptedFormats: '.pdf' },
+            { name: 'aadharCard', label: 'Upload Aadhar Card', acceptedFormats: 'image/*' },
+            { name: 'panCard', label: 'Upload Pan Card', acceptedFormats: 'image/*' }
           ].map((field, index) => (
             <Grid item xs={12} md={6} key={index}>
               <Button
@@ -272,8 +283,12 @@ const EmployeeForm = () => {
                   type="file"
                   name={field.name}
                   hidden
+                  accept={field.acceptedFormats}
                   onChange={handleChange}
                 />
+                {formData[`${field.name}Name`] && (
+                  <p>{formData[`${field.name}Name`]}</p>
+                )}
               </Button>
             </Grid>
           ))}
@@ -296,6 +311,11 @@ const EmployeeForm = () => {
                 value={formData[field.name]}
                 onChange={handleChange}
                 required={true}
+                InputProps={{
+                  inputProps: {
+                    maxLength: field.name === 'ifscCode' ? 11 : undefined, // Set max length for IFSC code if needed
+                  }
+                }}
               />
             </Grid>
           ))}
@@ -311,7 +331,6 @@ const EmployeeForm = () => {
             >
               {loading ? 'Saving...' : 'Save'}
             </Button>
-
           </Grid>
         </Grid>
       </form>

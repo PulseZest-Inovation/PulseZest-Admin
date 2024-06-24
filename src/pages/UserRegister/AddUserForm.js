@@ -30,7 +30,14 @@ export default function AddUserForm() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    if (name === 'phoneNumber') {
+      const regex = /^[0-9]*$/;
+      if (regex.test(value)) {
+        setFormData({ ...formData, [name]: value });
+      }
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   const handleServiceTypeChange = (e) => {
@@ -65,6 +72,8 @@ export default function AddUserForm() {
       return;
     }
 
+    setLoading(true);
+
     try {
       const auth = getAuth(); // Initialize Firebase Auth instance
       const { email, password } = formData;
@@ -95,6 +104,7 @@ export default function AddUserForm() {
       resetForm();
     } catch (error) {
       console.error('Error adding user: ', error);
+      toast.error('Error adding user. Please try again.');
     } finally {
       setLoading(false); // End loading
     }
@@ -198,16 +208,15 @@ export default function AddUserForm() {
             />
           </Grid>
           <Grid item xs={12}>
-          <Button
-  variant="contained"
-  color="primary"
-  type="submit"
-  fullWidth
-  disabled={loading}
->
-  {loading ? 'Saving...' : 'Save'}
-</Button>
-
+            <Button
+              variant="contained"
+              color="primary"
+              type="submit"
+              fullWidth
+              disabled={loading}
+            >
+              {loading ? 'Saving...' : 'Save'}
+            </Button>
           </Grid>
         </Grid>
       </form>

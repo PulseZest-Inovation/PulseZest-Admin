@@ -17,17 +17,23 @@ const InternForm = () => {
         phoneNumber: '',
         qualification: '',
         internshipMonths: '',
-        resume: null, // Add resume to formData
+        resume: null,
     });
 
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [loading, setLoading] = useState(false);
 
-
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
+        if (name === 'phoneNumber') {
+            // Allow only digits for phone number
+            if (/^\d*$/.test(value)) {
+                setFormData({ ...formData, [name]: value });
+            }
+        } else {
+            setFormData({ ...formData, [name]: value });
+        }
     };
 
     const handleFileChange = (e) => {
@@ -46,27 +52,29 @@ const InternForm = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+    
         // Password and confirm password check
         if (formData.password !== formData.confirmPassword) {
             toast.error('Passwords do not match. Please check and try again.');
             return;
         }
-
+    
         try {
+            setLoading(true); // Start loading
+    
             // Create user account with email and password
             const { email, password, fullName, phoneNumber, qualification, internshipMonths, resume } = formData;
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const userId = userCredential.user.uid;
-
+    
             // Upload resume to Firebase Storage
             let resumeURL = '';
             if (resume) {
-                const resumeRef = ref(storage,  `resumes/${userId}`);
+                const resumeRef = ref(storage, `resumes/${userId}`);
                 await uploadBytes(resumeRef, resume);
                 resumeURL = await getDownloadURL(resumeRef);
             }
-
+    
             // Additional data to store in Firestore
             const additionalData = {
                 fullName,
@@ -79,10 +87,10 @@ const InternForm = () => {
                 password, // Not recommended to store plaintext password, should hash it
                 dateOfRegistration: new Date().toISOString().split('T')[0], // Today's date in YYYY-MM-DD format
             };
-
+    
             // Store intern details in Firestore
             await setDoc(doc(db, 'internDetails', userId), additionalData);
-
+    
             // Clear form data after successful submission
             setFormData({
                 email: '',
@@ -94,7 +102,7 @@ const InternForm = () => {
                 internshipMonths: '',
                 resume: null,
             });
-
+    
             // Show success message
             toast.success('Intern details saved successfully!');
         } catch (error) {
@@ -102,9 +110,9 @@ const InternForm = () => {
             toast.error('Failed to save intern details. Please try again.');
         } finally {
             setLoading(false); // End loading
-          }
-        };
-
+        }
+    };
+    
     return (
         <div>
             <h1>Intern Form</h1>
@@ -167,26 +175,28 @@ const InternForm = () => {
                             component="label"
                             fullWidth
                         >
-                            Upload Resume
+                            Upload Resume (Only take PDF)
                             <input
                                 type="file"
                                 hidden
-                                accept=".pdf, .png, .jpg, .jpeg"
+                                accept=".pdf"
                                 onChange={handleFileChange}
                             />
+                            {formData.resume && (
+                                <p>{formData.resume.name}</p>
+                            )}
                         </Button>
                     </Grid>
                     <Grid item xs={12}>
-                    <Button
-  variant="contained"
-  color="primary"
-  type="submit"
-  fullWidth
-  disabled={loading}
->
-  {loading ? 'Saving...' : 'Save'}
-</Button>
-
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            type="submit"
+                            fullWidth
+                            disabled={loading}
+                        >
+                            {loading ? 'Saving...' : 'Save'}
+                        </Button>
                     </Grid>
                 </Grid>
             </form>
