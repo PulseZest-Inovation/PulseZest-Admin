@@ -15,43 +15,48 @@ import {
   TextField
 } from '@mui/material';
 
-export default function WebDevelopment() {
-  const [webData, setWebData] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
+const Intern = () => {
+  const [interns, setInterns] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchInterns = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, 'webDevelopment'));
-        const data = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        setWebData(data);
+        const querySnapshot = await getDocs(collection(db, 'internDetails'));
+        const internList = querySnapshot.docs.map(doc => {
+          const data = doc.data();
+          // Ensure dateOfRegistration is valid and convert it to Date object
+          const dateOfRegistration = data.dateOfRegistration ? new Date(data.dateOfRegistration) : null;
+          return {
+            id: doc.id,
+            ...data,
+            dateOfRegistration: dateOfRegistration instanceof Date ? dateOfRegistration : null
+          };
+        });
+        setInterns(internList);
       } catch (error) {
-        console.error('Error fetching web development data:', error);
+        console.error('Error fetching interns:', error);
       }
     };
 
-    fetchData();
+    fetchInterns();
   }, []);
 
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
   };
 
-  const filteredData = webData.filter((item) => {
-    const fullName = item.fullName ? item.fullName.toLowerCase() : '';
-    const email = item.email ? item.email.toLowerCase() : '';
+  const filteredInterns = interns.filter((intern) => {
+    const fullName = intern.fullName ? intern.fullName.toLowerCase() : '';
+    const email = intern.email ? intern.email.toLowerCase() : '';
     const query = searchQuery.toLowerCase();
-
     return fullName.includes(query) || email.includes(query);
   });
 
   return (
     <div style={{ overflow: 'auto', maxHeight: '500px' }}>
       <Typography variant="h4" gutterBottom align="center">
-        Web Development Data
+        Intern Details
       </Typography>
       <TextField
         label="Search"
@@ -67,22 +72,24 @@ export default function WebDevelopment() {
             <TableRow>
               <TableCell>Full Name</TableCell>
               <TableCell>Email Address</TableCell>
-              <TableCell>Website Name</TableCell>
+              <TableCell>Phone Number</TableCell>
               <TableCell>Registration Date</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredData.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell>{item.fullName}</TableCell>
-                <TableCell>{item.email}</TableCell>
-                <TableCell>{item.websiteName}</TableCell>
-                <TableCell>{item.registrationDate}</TableCell>
+            {filteredInterns.map((intern) => (
+              <TableRow key={intern.id}>
+                <TableCell>{intern.fullName}</TableCell>
+                <TableCell>{intern.email}</TableCell>
+                <TableCell>{intern.phoneNumber}</TableCell>
+                <TableCell>
+                  {intern.dateOfRegistration ? intern.dateOfRegistration.toLocaleDateString() : 'N/A'}
+                </TableCell>
                 <TableCell>
                   <Button
                     component={Link}
-                    to={`/web-development/${item.id}`}
+                    to={`/intern-details/${intern.id}`}
                     variant="contained"
                     color="primary"
                   >
@@ -96,4 +103,6 @@ export default function WebDevelopment() {
       </TableContainer>
     </div>
   );
-}
+};
+
+export default Intern;
