@@ -15,43 +15,44 @@ import {
   TextField
 } from '@mui/material';
 
-export default function WebDevelopment() {
-  const [webData, setWebData] = useState([]);
+const Employee = () => {
+  const [employees, setEmployees] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchEmployees = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, 'webDevelopment'));
-        const data = querySnapshot.docs.map(doc => ({
+        const querySnapshot = await getDocs(collection(db, 'employeeDetails'));
+        const employeeList = querySnapshot.docs.map(doc => ({
           id: doc.id,
-          ...doc.data()
+          ...doc.data(),
+          // Convert Firestore Timestamp to Date object
+          dateOfRegistration: doc.data().dateOfRegistration.toDate()
         }));
-        setWebData(data);
+        setEmployees(employeeList);
       } catch (error) {
-        console.error('Error fetching web development data:', error);
+        console.error('Error fetching employees:', error);
       }
     };
 
-    fetchData();
+    fetchEmployees();
   }, []);
 
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
   };
 
-  const filteredData = webData.filter((item) => {
-    const fullName = item.fullName ? item.fullName.toLowerCase() : '';
-    const email = item.email ? item.email.toLowerCase() : '';
+  const filteredEmployees = employees.filter((employee) => {
+    const fullName = employee.fullName ? employee.fullName.toLowerCase() : '';
+    const email = employee.email ? employee.email.toLowerCase() : '';
     const query = searchQuery.toLowerCase();
-
     return fullName.includes(query) || email.includes(query);
   });
 
   return (
     <div style={{ overflow: 'auto', maxHeight: '500px' }}>
       <Typography variant="h4" gutterBottom align="center">
-        Web Development Data
+        Employee Details
       </Typography>
       <TextField
         label="Search"
@@ -67,22 +68,23 @@ export default function WebDevelopment() {
             <TableRow>
               <TableCell>Full Name</TableCell>
               <TableCell>Email Address</TableCell>
-              <TableCell>Website Name</TableCell>
+              <TableCell>Phone Number</TableCell>
               <TableCell>Registration Date</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredData.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell>{item.fullName}</TableCell>
-                <TableCell>{item.email}</TableCell>
-                <TableCell>{item.websiteName}</TableCell>
-                <TableCell>{item.registrationDate}</TableCell>
+            {filteredEmployees.map((employee) => (
+              <TableRow key={employee.id}>
+                <TableCell>{employee.fullName}</TableCell>
+                <TableCell>{employee.email}</TableCell>
+                <TableCell>{employee.phoneNumber}</TableCell>
+                {/* Display formatted registration date */}
+                <TableCell>{employee.dateOfRegistration.toLocaleDateString()}</TableCell>
                 <TableCell>
                   <Button
                     component={Link}
-                    to={`/web-development/${item.id}`}
+                    to={`/employee-details/${employee.id}`}
                     variant="contained"
                     color="primary"
                   >
@@ -96,4 +98,6 @@ export default function WebDevelopment() {
       </TableContainer>
     </div>
   );
-}
+};
+
+export default Employee;
