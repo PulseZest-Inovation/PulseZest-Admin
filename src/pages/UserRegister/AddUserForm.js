@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { TextField, Button, Select, MenuItem, FormControl, InputLabel, Grid, IconButton, InputAdornment } from '@mui/material';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth'; // Import Firebase Auth functions
 import { db } from '../../Firebase/Firebase'; // Import your Firestore db instance
-import { collection, addDoc, setDoc, doc } from 'firebase/firestore'; // Import Firestore functions
+import {   setDoc, doc } from 'firebase/firestore'; // Import Firestore functions
 import { toast, ToastContainer } from 'react-toastify'; // Import toast for notifications
 import 'react-toastify/dist/ReactToastify.css'; // CSS for toast notifications
 import { Visibility, VisibilityOff } from '@mui/icons-material';
