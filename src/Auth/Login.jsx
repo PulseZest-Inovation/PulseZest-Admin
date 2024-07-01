@@ -13,6 +13,7 @@ import {
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import securityKey from './security';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -30,6 +31,7 @@ const Login = () => {
         navigate('/admin');
       }
     });
+ 
 
     return () => unsubscribe();
   }, [navigate]);
@@ -58,7 +60,7 @@ const Login = () => {
 
   const handleSecretKeySubmit = (e) => {
     e.preventDefault();
-    if (enteredKey === secretKey) {
+    if (enteredKey === securityKey()) {
       setIsKeyValid(true);
       toast.success('Secret key validated!');
     } else {
