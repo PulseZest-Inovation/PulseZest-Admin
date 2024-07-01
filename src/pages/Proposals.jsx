@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { db } from '../Firebase/Firebase'; // Adjust the path as necessary
-import { collection, getDocs, updateDoc, doc, orderBy, query, onSnapshot } from 'firebase/firestore';
+import { collection, updateDoc, doc, orderBy, query, onSnapshot } from 'firebase/firestore';
 import { Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import styled from 'styled-components';
 
@@ -11,6 +11,8 @@ const PageContainer = styled.div`
 
 const ProposalList = styled.div`
   margin-top: 20px;
+  max-height: 400px; /* Set a maximum height for the list */
+  overflow-y: auto; /* Enable vertical scrolling */
 `;
 
 const ProposalItem = styled.div`
