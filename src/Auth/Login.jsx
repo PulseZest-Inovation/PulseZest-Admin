@@ -18,7 +18,7 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const secretKey = '9LWa=ng7=nvJWBAbtzbWwR19tS]./:"i`l]Wu*AQ`kGfKE`XUS&NA#Rxh)57ac';
+  const secretKey = 'bestofluckdivyansh';
   const [enteredKey, setEnteredKey] = useState('');
   const [isKeyValid, setIsKeyValid] = useState(false);
   const [showSecretKey, setShowSecretKey] = useState(false); // State for showing/hiding secret key
