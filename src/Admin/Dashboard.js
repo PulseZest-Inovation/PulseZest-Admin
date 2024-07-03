@@ -12,7 +12,7 @@ import UserResgistration from '../pages/UserRegister';
 import Employee from '../pages/employee';
 import Intern from '../pages/intern';
 import AttendancePage from '../components/Attendance/AttendancePage';
-
+import Proposals from '../pages/Proposals';
 const drawerWidth = 240;
 
 const Root = styled('div')(({ theme }) => ({
@@ -109,6 +109,7 @@ const Dashboard = () => {
         <Route path="app-development" element={<AppDevelopment />} />
         <Route path="web-development" element={<WebDevelopment />} />
         <Route path="user-registration" element={<UserResgistration />} />
+        <Route path="proposals" element={<Proposals />} />
         <Route path="employee-details" element={<Employee />} />
         <Route path="intern-details" element={<Intern />} />
         <Route path="user-attendance" element={<AttendancePage />} />

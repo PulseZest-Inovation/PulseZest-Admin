@@ -63,7 +63,7 @@ const AttendancePage = () => {
   }
 
   return (
-    <div style={{ maxWidth: '900px', margin: '0 auto', padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+    <div style={{ maxWidth: '900px', margin: '0 auto', padding: '20px', fontFamily: 'Arial, sans-serif', maxHeight: '100vh', overflowY: 'auto' }}>
       <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '20px', textAlign: 'center', color: '#333' }}>Employee Attendance</h1>
       <div style={{ overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', backgroundColor: '#fff', boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', borderRadius: '10px' }}>
@@ -103,8 +103,6 @@ const AttendancePage = () => {
           </tbody>
         </table>
       </div>
-     
-      
     </div>
   );
 };
