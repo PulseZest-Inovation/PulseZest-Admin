@@ -10,6 +10,11 @@ import {
 const PiChart = ({ data, onClose }) => {
   const totalPresent = data.filter(entry => entry.status === 'present').length;
   const totalAbsent = data.filter(entry => entry.status === 'absent').length;
+  const totalEntries = totalPresent + totalAbsent;
+
+  // Calculate percentages
+  const presentPercentage = ((totalPresent / totalEntries) * 100).toFixed(2);
+  const absentPercentage = ((totalAbsent / totalEntries) * 100).toFixed(2);
 
   const pieChartData = [
     { name: 'Present', value: totalPresent },
@@ -20,8 +25,6 @@ const PiChart = ({ data, onClose }) => {
 
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative', backgroundColor: '#fff', borderRadius: '10px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
-   
-
       <PieChart width={400} height={300}>
         <Pie
           dataKey="value"
@@ -47,11 +50,11 @@ const PiChart = ({ data, onClose }) => {
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#f3f4f6', borderRadius: '5px', padding: '10px' }}>
           <div style={{ flex: '1', padding: '10px' }}>
             <p style={{ fontSize: '1rem', marginBottom: '5px', color: '#4caf50' }}>Total Present</p>
-            <p style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: '0' }}>{totalPresent}</p>
+            <p style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: '0' }}>{totalPresent} ({presentPercentage}%)</p>
           </div>
           <div style={{ flex: '1', padding: '10px' }}>
             <p style={{ fontSize: '1rem', marginBottom: '5px', color: '#f44336' }}>Total Absent</p>
-            <p style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: '0' }}>{totalAbsent}</p>
+            <p style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: '0' }}>{totalAbsent} ({absentPercentage}%)</p>
           </div>
         </div>
       </div>

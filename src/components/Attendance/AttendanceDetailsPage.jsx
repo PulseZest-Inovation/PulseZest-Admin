@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { collection, doc, getDocs, getDoc } from 'firebase/firestore';
 import { db } from '../../Firebase/Firebase'; // Adjust import as per your project structure
 import PiChart from './piChart'; // Adjust import based on your file structure
+import { Button, Select, MenuItem, FormControl, InputLabel, Grid } from '@mui/material'; // Import Material-UI components
 
 const AttendanceDetailsPage = () => {
   const navigate = useNavigate();
@@ -14,11 +15,12 @@ const AttendanceDetailsPage = () => {
   const [absentCount, setAbsentCount] = useState(0);
   const [showPieChartPopup, setShowPieChartPopup] = useState(false); // State for showing/hiding the pie chart popup
   const [monthlyAttendanceData, setMonthlyAttendanceData] = useState([]); // State for monthly attendance data
+  const [selectedMonth, setSelectedMonth] = useState(''); // Default to empty string for all months
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear()); // Default to current year
 
   useEffect(() => {
-    const fetchAttendanceDetails = async () => {
+    const fetchUserData = async () => {
       try {
-        // Fetch user details to get full name
         const userDoc = await getDoc(doc(db, 'employeeDetails', userId));
         if (userDoc.exists()) {
           const userData = userDoc.data();
@@ -26,77 +28,69 @@ const AttendanceDetailsPage = () => {
         } else {
           setFullName('Unknown');
         }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        setFullName('Unknown');
+      }
+    };
 
-        // Fetch all attendance documents for the user
+    fetchUserData();
+  }, [userId]);
+
+  useEffect(() => {
+    const fetchAttendanceDetails = async () => {
+      setLoading(true);
+      try {
         const attendanceRef = collection(db, 'employeeDetails', userId, 'attendance');
         const attendanceSnapshot = await getDocs(attendanceRef);
-
+  
         const attendanceData = attendanceSnapshot.docs.map(doc => ({
           id: doc.id,
-          date: doc.id, // Assuming `date` is the document ID
+          date: doc.id, // Assuming `date` is the document ID in d-m-yyyy format
           status: doc.data().attendance,
         }));
-
-        setAttendanceData(attendanceData);
-
-        // Calculate present and absent counts
-        let present = attendanceData.filter(entry => entry.status === 'present').length;
-        let absent = attendanceData.filter(entry => entry.status === 'absent').length;
+  
+        // Filter data based on the selected month and year
+        const filteredData = attendanceData.filter(entry => {
+          if (!selectedMonth) {
+            return true; // Show all data if no specific month is selected
+          }
+          const [day, month, year] = entry.date.split('-').map(Number);
+          return month === parseInt(selectedMonth, 10) && year === selectedYear;
+        });
+  
+        setAttendanceData(filteredData);
+  
+        const present = filteredData.filter(entry => entry.status === 'present').length;
+        const absent = filteredData.filter(entry => entry.status === 'absent').length;
         setPresentCount(present);
         setAbsentCount(absent);
-
       } catch (error) {
         console.error('Error fetching attendance details:', error);
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchAttendanceDetails();
-  }, [userId]);
+  }, [userId, selectedMonth, selectedYear]);
+  
 
-  const handleShowPieChart = async () => {
-    try {
-      // Fetch individual attendance data for the user
-      const userAttendanceRef = collection(db, 'employeeDetails', userId, 'attendance');
-      const userAttendanceSnapshot = await getDocs(userAttendanceRef);
-  
-      const userAttendanceData = userAttendanceSnapshot.docs.map(doc => ({
-        id: doc.id,
-        date: doc.id, // Assuming `date` is the document ID
-        status: doc.data().attendance,
-      }));
-  
-      // Calculate present and absent counts
-      let present = userAttendanceData.filter(entry => entry.status === 'present').length;
-      let absent = userAttendanceData.filter(entry => entry.status === 'absent').length;
-      setPresentCount(present);
-      setAbsentCount(absent);
-  
-      // Set the monthly attendance data for the pie chart
-      setMonthlyAttendanceData(userAttendanceData);
-  
-      setShowPieChartPopup(true); // Show the pie chart popup
-    } catch (error) {
-      console.error('Error fetching monthly attendance data:', error);
-    }
+  const handleShowPieChart = () => {
+    setShowPieChartPopup(true);
+    setMonthlyAttendanceData(attendanceData);
   };
-  
 
   const handleClosePieChart = () => {
-    setShowPieChartPopup(false); // Close the pie chart popup
+    setShowPieChartPopup(false);
   };
 
-  const fetchMonthlyAttendanceData = async (userId) => {
-    // Example function to fetch monthly attendance data
-    // Replace with your actual implementation to fetch data from Firestore or any API
-    // For demo, returning mock data
-    return [
-      { month: 'January', present: 20, absent: 5 },
-      { month: 'February', present: 18, absent: 7 },
-      { month: 'March', present: 22, absent: 3 },
-      // Add more months as needed
-    ];
+  const handleMonthChange = (event) => {
+    setSelectedMonth(event.target.value);
+  };
+
+  const handleYearChange = (event) => {
+    setSelectedYear(parseInt(event.target.value));
   };
 
   if (loading) {
@@ -109,46 +103,62 @@ const AttendanceDetailsPage = () => {
 
   return (
     <div style={{ maxWidth: '900px', margin: '0 auto', padding: '20px' }}>
-      <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '20px', textAlign: 'center' }}>Employee Attendance Details for {fullName}</h1>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <button
-          style={{
-            backgroundColor: '#f3f4f6',
-            color: '#333',
-            border: 'none',
-            padding: '10px 20px',
-            fontSize: '0.875rem',
-            cursor: 'pointer',
-            borderRadius: '5px',
-            transition: 'background-color 0.3s ease',
-            marginRight: '10px'
-          }}
+      <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '20px', textAlign: 'center' }}>Attendance Details for {fullName}</h1>
+      <Grid container justifyContent="space-between" alignItems="center" marginBottom="20px">
+        <Button
+          variant="outlined"
+          style={{ marginRight: '10px' }}
           onClick={() => navigate('/admin/user-attendance')}
         >
           Back to Attendance
-        </button>
-        <button
-          style={{
-            backgroundColor: '#4caf50',
-            color: '#fff',
-            border: 'none',
-            padding: '10px 20px',
-            fontSize: '0.875rem',
-            cursor: 'pointer',
-            borderRadius: '5px',
-            transition: 'background-color 0.3s ease'
-          }}
+        </Button>
+        <Button
+          variant="contained"
+          style={{ backgroundColor: '#4caf50', color: '#fff' }}
           onClick={handleShowPieChart}
         >
           Show Pie Chart
-        </button>
-      </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-        <div style={{ flex: '1' }}>
+        </Button>
+      </Grid>
+      <Grid container justifyContent="space-between" marginBottom="10px">
+        <Grid item style={{ flex: '1' }}>
           <p><strong>Total Present:</strong> {presentCount}</p>
           <p><strong>Total Absent:</strong> {absentCount}</p>
-        </div>
-      </div>
+        </Grid>
+      </Grid>
+      <Grid container justifyContent="space-between" marginBottom="20px">
+        <Grid item>
+          <FormControl variant="standard" style={{ minWidth: 200 }}>
+            <InputLabel id="month-label">Select Month</InputLabel>
+            <Select
+              labelId="month-label"
+              id="month"
+              value={selectedMonth}
+              onChange={handleMonthChange}
+            >
+              <MenuItem value="">All Months</MenuItem>
+              {Array.from({ length: 12 }, (_, i) => i + 1).map(month => (
+                <MenuItem key={month} value={month}>{new Date(0, month - 1).toLocaleString('default', { month: 'long' })}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid item>
+          <FormControl variant="standard" style={{ minWidth: 200 }}>
+            <InputLabel id="year-label">Select Year</InputLabel>
+            <Select
+              labelId="year-label"
+              id="year"
+              value={selectedYear}
+              onChange={handleYearChange}
+            >
+              {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map(year => (
+                <MenuItem key={year} value={year}>{year}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+      </Grid>
       <table style={{ width: '100%', borderCollapse: 'collapse', backgroundColor: '#fff', boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', borderRadius: '10px', overflowX: 'auto' }}>
         <thead style={{ backgroundColor: '#f3f4f6', color: '#333', textTransform: 'uppercase', fontSize: '0.75rem' }}>
           <tr>
@@ -172,22 +182,13 @@ const AttendanceDetailsPage = () => {
           <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '10px', maxWidth: '80%', maxHeight: '80%', overflow: 'auto' }}>
             <h2 style={{ fontSize: '2rem', textAlign: 'center', marginBottom: '20px' }}>Pie Chart</h2>
             <PiChart data={monthlyAttendanceData} />
-            <button
-              style={{
-                backgroundColor: '#4caf50',
-                color: '#fff',
-                border: 'none',
-                padding: '10px 20px',
-                fontSize: '0.875rem',
-                cursor: 'pointer',
-                borderRadius: '5px',
-                transition: 'background-color 0.3s ease',
-                marginTop: '20px'
-              }}
+            <Button
+              variant="contained"
+              style={{ backgroundColor: '#4caf50', color: '#fff', marginTop: '20px' }}
               onClick={handleClosePieChart}
             >
               Close
-            </button>
+            </Button>
           </div>
         </div>
       )}
