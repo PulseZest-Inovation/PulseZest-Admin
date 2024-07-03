@@ -103,7 +103,7 @@ const AttendanceDetailsPage = () => {
 
   return (
     <div style={{ maxWidth: '900px', margin: '0 auto', padding: '20px' }}>
-      <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '20px', textAlign: 'center' }}>Attendance Details for {fullName}</h1>
+   <u>   <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '20px', textAlign: 'center' }}>Attendance Details of {fullName}</h1></u> 
       <Grid container justifyContent="space-between" alignItems="center" marginBottom="20px">
         <Button
           variant="outlined"

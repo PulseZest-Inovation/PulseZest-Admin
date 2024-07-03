@@ -93,27 +93,31 @@ const Proposals = () => {
     <PageContainer>
       <h1>Proposals</h1>
       <ProposalList>
-        {proposals.map((proposal) => (
-          <ProposalItem key={proposal.id} status={proposal.status}>
-            <div>
-              <p>Phone Number: {proposal.phoneNumber}</p>
-              <p>Status: {proposal.status}</p>
-            </div>
-            <FormControl variant="outlined" size="small">
-              <InputLabel>Status</InputLabel>
-              <Select
-                value={proposal.status}
-                onChange={(e) => handleStatusChange(proposal.id, e.target.value)}
-                label="Status"
-              >
-                <MenuItem value="pending">Pending</MenuItem>
-                <MenuItem value="approved">Approved</MenuItem>
-                <MenuItem value="open">Open</MenuItem>
-                <MenuItem value="closed">Closed</MenuItem>
-              </Select>
-            </FormControl>
-          </ProposalItem>
-        ))}
+        {proposals.length === 0 ? (
+          <p>No proposals available</p>
+        ) : (
+          proposals.map((proposal) => (
+            <ProposalItem key={proposal.id} status={proposal.status}>
+              <div>
+                <p>Phone Number: {proposal.phoneNumber}</p>
+                <p>Status: {proposal.status}</p>
+              </div>
+              <FormControl variant="outlined" size="small">
+                <InputLabel>Status</InputLabel>
+                <Select
+                  value={proposal.status}
+                  onChange={(e) => handleStatusChange(proposal.id, e.target.value)}
+                  label="Status"
+                >
+                  <MenuItem value="pending">Pending</MenuItem>
+                  <MenuItem value="approved">Approved</MenuItem>
+                  <MenuItem value="open">Open</MenuItem>
+                  <MenuItem value="closed">Closed</MenuItem>
+                </Select>
+              </FormControl>
+            </ProposalItem>
+          ))
+        )}
       </ProposalList>
     </PageContainer>
   );

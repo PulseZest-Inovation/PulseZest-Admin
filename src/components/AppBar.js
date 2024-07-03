@@ -4,7 +4,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 
 const AppBar = ({ onSidebarToggle, isSidebarOpen }) => {
   return (
-    <MuiAppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1, bgcolor: 'grey' }}>
+    <MuiAppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1, bgcolor: 'purple' }}>
       <Toolbar>
         <IconButton
           color="inherit"

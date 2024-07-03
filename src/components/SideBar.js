@@ -13,6 +13,38 @@ const StyledBadge = styled(Badge)`
   }
 `;
 
+const StyledListItem = styled(ListItem)`
+  && {
+    color: #0d47a1; // Dark blue color for text
+    font-weight: bold; // Bold text
+
+    &:hover {
+      background-color: #e3f2fd; // Light blue background on hover
+      border-left: 5px solid white; // White hover line
+      transition: all 0.3s ease-in-out; // Smooth transition
+    }
+
+    &:hover .MuiListItemText-primary {
+      font-weight: bold;
+    }
+  }
+`;
+
+const LogoutButton = styled.button`
+  background-color: #0d47a1;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #1565c0;
+  }
+`;
+
 const Sidebar = () => {
   const auth = getAuth();
   const location = useLocation();
@@ -51,33 +83,33 @@ const Sidebar = () => {
 
   return (
     <List>
-      <ListItem button component={Link} to="/" onClick={() => setClickedOnProposals(false)}>
+      <StyledListItem button component={Link} to="/" onClick={() => setClickedOnProposals(false)}>
         <ListItemText primary="Home" />
-      </ListItem>
-      <ListItem button component={Link} to="employee-details" onClick={() => setClickedOnProposals(false)}>
+      </StyledListItem>
+      <StyledListItem button component={Link} to="employee-details" onClick={() => setClickedOnProposals(false)}>
         <ListItemText primary="Employee Details" />
-      </ListItem>
-      <ListItem button component={Link} to="intern-details" onClick={() => setClickedOnProposals(false)}>
+      </StyledListItem>
+      <StyledListItem button component={Link} to="intern-details" onClick={() => setClickedOnProposals(false)}>
         <ListItemText primary="Intern Details" />
-      </ListItem>
-      <ListItem button component={Link} to="app-development" onClick={() => setClickedOnProposals(false)}>
+      </StyledListItem>
+      <StyledListItem button component={Link} to="app-development" onClick={() => setClickedOnProposals(false)}>
         <ListItemText primary="App Development" />
-      </ListItem>
-      <ListItem button component={Link} to="web-development" onClick={() => setClickedOnProposals(false)}>
+      </StyledListItem>
+      <StyledListItem button component={Link} to="web-development" onClick={() => setClickedOnProposals(false)}>
         <ListItemText primary="Web Development" />
-      </ListItem>
-      <ListItem button component={Link} to="proposals" onClick={handleProposalsClick}>
+      </StyledListItem>
+      <StyledListItem button component={Link} to="proposals" onClick={handleProposalsClick}>
         <StyledBadge badgeContent={newProposalCount > 0 && !clickedOnProposals ? newProposalCount : 0} variant="dot">
           <ListItemText primary="Proposals" />
         </StyledBadge>
-      </ListItem>
-      <ListItem button component={Link} to="user-registration" onClick={() => setClickedOnProposals(false)}>
+      </StyledListItem>
+      <StyledListItem button component={Link} to="user-registration" onClick={() => setClickedOnProposals(false)}>
         <ListItemText primary="User Registration" />
-      </ListItem>
-      <ListItem button component={Link} to="user-attendance" onClick={() => setClickedOnProposals(false)}>
+      </StyledListItem>
+      <StyledListItem button component={Link} to="user-attendance" onClick={() => setClickedOnProposals(false)}>
         <ListItemText primary="User Attendance" />
-      </ListItem>
-      <button onClick={handleLogout}>Logout</button>
+      </StyledListItem>
+      <LogoutButton onClick={handleLogout}>Logout</LogoutButton>
     </List>
   );
 };
