@@ -87,10 +87,20 @@ const Employee = () => {
                     to={`/employee-details/${employee.id}`}
                     variant="contained"
                     color="primary"
+                    style={{ marginRight: '10px' }} // Add some spacing between buttons
                   >
                     View Details
                   </Button>
+                  <Button
+                    component={Link}
+                    to={`/manage-employee/${employee.id}`}
+                    variant="contained"
+                    color="secondary" // Use a different color for the "Manage" button
+                  >
+                    Manage
+                  </Button>
                 </TableCell>
+
               </TableRow>
             ))}
           </TableBody>

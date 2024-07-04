@@ -14,8 +14,9 @@ import InternDetails from './pages/Details/InternDetails/internDetails';
 import AttendancePage from './components/Attendance/AttendancePage';
 import AttendanceDetailsPage from './components/Attendance/AttendanceDetailsPage';
 import ProtectedRoute from './Firebase/ProtectedRoute'; // Adjust the import based on your project structure
-import UnauthorizedPage from './Auth/Unauthorized/UnauthorizedPage'; // Adjust the import based on your project structure
-import { auth } from './Firebase/Firebase'; // Assuming your Firebase auth instance is exported from firebaseConfig
+import UnauthorizedPage from './Auth/Unauthorized/UnauthorizedPage'; 
+import ManageEmp from "./pages/Details/EmployeeDetails/ManageEmployee/manageEmp";
+import { auth } from './Firebase/Firebase'; 
 
 const AppRoutes = () => {
   const [user, setUser] = useState(null);
@@ -46,6 +47,7 @@ const AppRoutes = () => {
           <Route path="/web-development/:id" element={<ProtectedRoute><WebDevelopmentDetail /></ProtectedRoute>} />
           <Route path="/employee-details" element={<ProtectedRoute><Employee /></ProtectedRoute>} />
           <Route path="/employee-details/:id" element={<ProtectedRoute><EmployeeDetails /></ProtectedRoute>} />
+          <Route path="/manage-employee/:id" element={<ProtectedRoute><ManageEmp /></ProtectedRoute>} />
           <Route path="/intern-details" element={<ProtectedRoute><Intern /></ProtectedRoute>} />
           <Route path="/intern-details/:id" element={<ProtectedRoute><InternDetails /></ProtectedRoute>} />
           <Route path="/user-attendance" element={<ProtectedRoute><AttendancePage /></ProtectedRoute>} />
