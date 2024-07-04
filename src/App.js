@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
 import Login from './Auth/Login';
 import Dashboard from './Admin/Dashboard';
@@ -14,26 +14,49 @@ import InternDetails from './pages/Details/InternDetails/internDetails';
 import AttendancePage from './components/Attendance/AttendancePage';
 import AttendanceDetailsPage from './components/Attendance/AttendanceDetailsPage';
 import ProtectedRoute from './Firebase/ProtectedRoute'; // Adjust the import based on your project structure
-import UnauthorizedPage from './Auth/UnauthorizedPage'; // Adjust the import based on your project structure
+import UnauthorizedPage from './Auth/Unauthorized/UnauthorizedPage'; // Adjust the import based on your project structure
+import { auth } from './Firebase/Firebase'; // Assuming your Firebase auth instance is exported from firebaseConfig
 
 const AppRoutes = () => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setUser(user);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <Routes>
       <Route path="/" element={<Login />} />
-      <Route path="/admin/*" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-      <Route path="/app-development" element={<ProtectedRoute><AppDevelopment /></ProtectedRoute>} />
-      <Route path="/app-development/:id" element={<ProtectedRoute><AppDevelopmentDetail /></ProtectedRoute>} />
-      <Route path="/web-development" element={<ProtectedRoute><WebDevelopment /></ProtectedRoute>} />
-      <Route path="/web-development/:id" element={<ProtectedRoute><WebDevelopmentDetail /></ProtectedRoute>} />
-      <Route path="/employee-details" element={<ProtectedRoute><Employee /></ProtectedRoute>} />
-      <Route path="/employee-details/:id" element={<ProtectedRoute><EmployeeDetails /></ProtectedRoute>} />
-      <Route path="/intern-details" element={<ProtectedRoute><Intern /></ProtectedRoute>} />
-      <Route path="/intern-details/:id" element={<ProtectedRoute><InternDetails /></ProtectedRoute>} />
-      <Route path="/user-attendance" element={<ProtectedRoute><AttendancePage /></ProtectedRoute>} />
-      <Route path="/attendance-details/:userId" element={<ProtectedRoute><AttendanceDetailsPage /></ProtectedRoute>} />
+      {user ? (
+        <>
+          <Route path="/admin/*" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/app-development" element={<ProtectedRoute><AppDevelopment /></ProtectedRoute>} />
+          <Route path="/app-development/:id" element={<ProtectedRoute><AppDevelopmentDetail /></ProtectedRoute>} />
+          <Route path="/web-development" element={<ProtectedRoute><WebDevelopment /></ProtectedRoute>} />
+          <Route path="/web-development/:id" element={<ProtectedRoute><WebDevelopmentDetail /></ProtectedRoute>} />
+          <Route path="/employee-details" element={<ProtectedRoute><Employee /></ProtectedRoute>} />
+          <Route path="/employee-details/:id" element={<ProtectedRoute><EmployeeDetails /></ProtectedRoute>} />
+          <Route path="/intern-details" element={<ProtectedRoute><Intern /></ProtectedRoute>} />
+          <Route path="/intern-details/:id" element={<ProtectedRoute><InternDetails /></ProtectedRoute>} />
+          <Route path="/user-attendance" element={<ProtectedRoute><AttendancePage /></ProtectedRoute>} />
+          <Route path="/attendance-details/:userId" element={<ProtectedRoute><AttendanceDetailsPage /></ProtectedRoute>} />
+        </>
+      ) : (
+        <Route path="*" element={<Navigate to="/unauthorized" />} />
+      )}
       <Route path="/unauthorized" element={<UnauthorizedPage />} />
       {/* Catch-all route */}
-      <Route path="*" element={<UnauthorizedPage />} />
+      <Route path="*" element={<Navigate to="/unauthorized" />} />
     </Routes>
   );
 };

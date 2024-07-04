@@ -55,7 +55,7 @@ const Error403 = () => {
         </svg>
         <h1 className={styles.errorText}>You are not allowed to enter here</h1>
         <h2>
-          Go <a target="_blank" href="/" className={styles.link}>Home!</a>
+          Go <a  href="/" className={styles.link}>Home!</a>
           </h2>
     </div>
 
