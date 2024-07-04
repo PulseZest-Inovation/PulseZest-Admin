@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { List, ListItem, ListItemText, Badge } from '@mui/material';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { getAuth, signOut } from 'firebase/auth';
 import { collection, onSnapshot, query } from 'firebase/firestore';
 import styled from 'styled-components';
@@ -50,6 +50,7 @@ const Sidebar = () => {
   const location = useLocation();
   const [newProposalCount, setNewProposalCount] = useState(0);
   const [clickedOnProposals, setClickedOnProposals] = useState(false);
+  const navigate = useNavigate();
 
   // UseEffect to count new proposals
   useEffect(() => {
@@ -78,7 +79,13 @@ const Sidebar = () => {
   };
 
   const handleLogout = () => {
-    signOut(auth);
+    signOut(auth)
+      .then(() => {
+        navigate('/');
+      })
+      .catch((error) => {
+        console.error('Error signing out:', error);
+      });
   };
 
   return (

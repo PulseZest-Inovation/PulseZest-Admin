@@ -1,0 +1,54 @@
+@import url("https://fonts.googleapis.com/css?family=Bungee");
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.box {
+  background: #1b1b1b;
+  color: white;
+  font-family: "Bungee", cursive;
+  text-align: center;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 70vw;
+  max-width: 600px; /* Adjust max-width to control the maximum size of the box */
+  margin-left: -5%; /* Shift the box to the left */
+}
+
+.link {
+  color: #2aa7cc;
+  text-decoration: none;
+}
+
+.link:hover {
+  color: white;
+}
+
+.svg {
+  width: 50%;
+  margin: 20px auto; /* Adjust margin for spacing */
+}
+
+.lightblue {
+  fill: #444;
+}
+
+.errorText {
+  font-size: 3em; /* Adjust font-size for error text */
+  margin-bottom: 0.5em; /* Adjust margin for spacing */
+}
+
+.alarm {
+  animation: alarmOn 0.5s infinite;
+}
+
+@keyframes alarmOn {
+  to {
+    fill: darkred;
+  }
+}
