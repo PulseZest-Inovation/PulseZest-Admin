@@ -7,7 +7,7 @@ import { db } from '../../../../../Firebase/Firebase'; // Adjust the path as nec
 const Zod = ({ userId, fullName, photoUrl }) => {
   const [zodCount, setZodCount] = useState(0);
 
-  // Fetch Zod count from Firestore on component mount
+  // Fetch Zod count and status from Firestore on component mount
   useEffect(() => {
     const fetchZodCount = async () => {
       try {
@@ -16,9 +16,15 @@ const Zod = ({ userId, fullName, photoUrl }) => {
         const manageDocRef = doc(manageCollectionRef, userId);
         const docSnap = await getDoc(manageDocRef);
         if (docSnap.exists()) {
-          setZodCount(docSnap.data().zodCount || 0);
+          const { zodCount, status } = docSnap.data();
+          setZodCount(zodCount || 0);
+          // Optional: If you want to handle status change on mount
+          if (status !== 'notSeen') {
+            await updateStatusInFirestore('notSeen');
+          }
         } else {
           setZodCount(0);
+          await setDoc(manageDocRef, { zodCount: 0, status: 'notSeen' }); // Create doc with default values
         }
       } catch (error) {
         console.error('Error fetching Zod count:', error);
@@ -32,6 +38,7 @@ const Zod = ({ userId, fullName, photoUrl }) => {
     const newZodCount = zodCount + 1;
     setZodCount(newZodCount);
     await updateZodCountInFirestore(newZodCount);
+    await updateStatusInFirestore('notSeen');
   };
 
   const handleRemoveZod = async () => {
@@ -39,6 +46,7 @@ const Zod = ({ userId, fullName, photoUrl }) => {
       const newZodCount = zodCount - 1;
       setZodCount(newZodCount);
       await updateZodCountInFirestore(newZodCount);
+      await updateStatusInFirestore('notSeen');
     }
   };
 
@@ -55,12 +63,25 @@ const Zod = ({ userId, fullName, photoUrl }) => {
         await updateDoc(manageDocRef, { zodCount: count });
       } else {
         // Document does not exist, set it (create)
-        await setDoc(manageDocRef, { zodCount: count });
+        await setDoc(manageDocRef, { zodCount: count, status: 'notSeen' });
       }
 
       console.log('Zod count updated successfully!');
     } catch (error) {
       console.error('Error updating Zod count:', error);
+    }
+  };
+
+  const updateStatusInFirestore = async (status) => {
+    try {
+      const employeeRef = doc(db, 'employeeDetails', userId);
+      const manageCollectionRef = collection(employeeRef, 'manage');
+      const manageDocRef = doc(manageCollectionRef, userId);
+
+      await updateDoc(manageDocRef, { status });
+      console.log('Status updated successfully!');
+    } catch (error) {
+      console.error('Error updating status:', error);
     }
   };
 
