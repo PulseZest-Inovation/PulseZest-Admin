@@ -100,7 +100,6 @@ const Employee = () => {
                     Manage
                   </Button>
                 </TableCell>
-
               </TableRow>
             ))}
           </TableBody>

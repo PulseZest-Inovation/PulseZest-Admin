@@ -1,155 +1,87 @@
-import React, { useState, useEffect } from 'react';
-import { db } from '../../../../../Firebase/Firebase'; // Adjust the path as necessary
-import { collection, getDocs, doc, getDoc, updateDoc,setDoc } from 'firebase/firestore';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
+import React, { useState, useEffect } from "react";
+import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
-import TextField from '@mui/material/TextField';
+import { doc, getDoc, setDoc, updateDoc, collection } from 'firebase/firestore';
+import { db } from '../../../../../Firebase/Firebase'; // Adjust the path as necessary
 
-const Zod = () => {
-  const [employees, setEmployees] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [open, setOpen] = useState(false);
-  const [selectedEmployee, setSelectedEmployee] = useState(null);
+const Zod = ({ userId, fullName, photoUrl }) => {
   const [zodCount, setZodCount] = useState(0);
 
-  // Fetch employee details from Firestore
+  // Fetch Zod count from Firestore on component mount
   useEffect(() => {
-    const fetchEmployees = async () => {
-      setLoading(true);
+    const fetchZodCount = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, 'employeeDetails'));
-        const employeeData = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        setEmployees(employeeData);
+        const employeeRef = doc(db, 'employeeDetails', userId);
+        const manageCollectionRef = collection(employeeRef, 'manage');
+        const manageDocRef = doc(manageCollectionRef, userId);
+        const docSnap = await getDoc(manageDocRef);
+        if (docSnap.exists()) {
+          setZodCount(docSnap.data().zodCount || 0);
+        } else {
+          setZodCount(0);
+        }
       } catch (error) {
-        console.error('Error fetching employee data:', error);
-      } finally {
-        setLoading(false);
+        console.error('Error fetching Zod count:', error);
       }
     };
 
-    fetchEmployees();
-  }, []);
+    fetchZodCount();
+  }, [userId]); // Run useEffect whenever userId changes
 
-  const handleClickOpen = async (employee) => {
-    setSelectedEmployee(employee);
-    try {
-      const employeeRef = doc(db, 'employeeDetails', employee.id);
-      const manageCollectionRef = collection(employeeRef, 'manage');
-      const manageDocRef = doc(manageCollectionRef, employee.id);
-      const docSnap = await getDoc(manageDocRef);
-      if (docSnap.exists()) {
-        setZodCount(docSnap.data().zodCount || 0);
-      } else {
-        setZodCount(0);
-      }
-    } catch (error) {
-      console.error('Error fetching Zod count:', error);
-    }
-    setOpen(true);
+  const handleAddZod = async () => {
+    const newZodCount = zodCount + 1;
+    setZodCount(newZodCount);
+    await updateZodCountInFirestore(newZodCount);
   };
 
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  const handleAddZod = () => {
-    setZodCount(zodCount + 1);
-  };
-
-  const handleRemoveZod = () => {
+  const handleRemoveZod = async () => {
     if (zodCount > 0) {
-      setZodCount(zodCount - 1);
+      const newZodCount = zodCount - 1;
+      setZodCount(newZodCount);
+      await updateZodCountInFirestore(newZodCount);
     }
   };
 
-  const handleSaveZod = async () => {
+  const updateZodCountInFirestore = async (count) => {
     try {
-      const employeeRef = doc(db, 'employeeDetails', selectedEmployee.id);
+      const employeeRef = doc(db, 'employeeDetails', userId);
       const manageCollectionRef = collection(employeeRef, 'manage');
-      const manageDocRef = doc(manageCollectionRef, selectedEmployee.id);
-  
+      const manageDocRef = doc(manageCollectionRef, userId);
+
       // Check if the document exists
       const docSnap = await getDoc(manageDocRef);
       if (docSnap.exists()) {
         // Document exists, update it
-        await updateDoc(manageDocRef, { zodCount });
+        await updateDoc(manageDocRef, { zodCount: count });
       } else {
         // Document does not exist, set it (create)
-        await setDoc(manageDocRef, { zodCount });
+        await setDoc(manageDocRef, { zodCount: count });
       }
-  
+
       console.log('Zod count updated successfully!');
-      setEmployees((prevEmployees) =>
-        prevEmployees.map((emp) =>
-          emp.id === selectedEmployee.id ? { ...emp, zodCount } : emp
-        )
-      );
-      handleClose();
     } catch (error) {
       console.error('Error updating Zod count:', error);
     }
   };
-  
 
   return (
-    <div>
-      <h1>zod</h1>
-      {loading ? (
-        <p>Loading employees...</p>
-      ) : (
-        <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 650 }} aria-label="employee table">
-            <TableHead>
-              <TableRow>
-                <TableCell>User ID</TableCell>
-                <TableCell>Full Name</TableCell>
-                <TableCell>Action</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {employees.map(employee => (
-                <TableRow key={employee.id}>
-                  <TableCell>{employee.id}</TableCell>
-                  <TableCell>{employee.fullName}</TableCell>
-                  <TableCell>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => handleClickOpen(employee)}
-                    >
-                      Manage Zod
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
-      <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Manage Zod</DialogTitle>
-        <DialogContent>
-          <TextField
-            label="Zod Count"
-            type="number"
-            value={zodCount}
-            InputProps={{ readOnly: true }}
-            fullWidth
-            margin="normal"
-          />
+    <div style={{ display: 'flex', alignItems: 'center', padding: '20px' }}>
+      {/* Avatar image on the left */}
+      <div style={{ marginRight: '20px' }}>
+        {photoUrl && <img src={photoUrl} alt={fullName} style={{ width: '100px', height: '100px', borderRadius: '50%' }} />}
+      </div>
+      {/* User details and Zod count on the right */}
+      <div>
+        <Typography variant="h5" gutterBottom>
+          User ID: {userId}
+        </Typography>
+        <Typography variant="h6" gutterBottom>
+          Full Name: {fullName}
+        </Typography>
+        <div>
+          <Typography variant="h6" gutterBottom>
+            Zod Count: {zodCount}
+          </Typography>
           <Button onClick={handleAddZod} color="primary" variant="contained">
             Add Zod
           </Button>
@@ -162,16 +94,8 @@ const Zod = () => {
           >
             Remove Zod
           </Button>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handleSaveZod} color="primary" variant="contained">
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
+        </div>
+      </div>
     </div>
   );
 };
