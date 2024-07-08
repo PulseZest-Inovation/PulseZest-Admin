@@ -1,8 +1,21 @@
 import React, { useState } from 'react';
-import { TextField, Button, Select, MenuItem, FormControl, InputLabel, Grid, IconButton, InputAdornment } from '@mui/material';
-import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth'; // Import Firebase Auth functions
+import {
+  TextField,
+  Button,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Grid,
+  IconButton,
+  InputAdornment
+} from '@mui/material';
+import {
+  getAuth,
+  createUserWithEmailAndPassword
+} from 'firebase/auth'; // Import Firebase Auth functions
 import { db } from '../../Firebase/Firebase'; // Import your Firestore db instance
-import {   setDoc, doc } from 'firebase/firestore'; // Import Firestore functions
+import { setDoc, doc } from 'firebase/firestore'; // Import Firestore functions
 import { toast, ToastContainer } from 'react-toastify'; // Import toast for notifications
 import 'react-toastify/dist/ReactToastify.css'; // CSS for toast notifications
 import { Visibility, VisibilityOff } from '@mui/icons-material';
@@ -90,11 +103,25 @@ export default function AddUserForm() {
         projectLiveDate: '',
         renewDate: '',
         userProfile: '',
-        userId: user.uid // Save Firebase Authentication UID in Firestore
+        userId: user.uid, // Save Firebase Authentication UID in Firestore
+        userType: serviceType // Save serviceType as userType in Firestore
       };
 
-      // Determine collection based on service type (app or web)
-      const collectionName = serviceType === 'app' ? 'appDevelopment' : 'webDevelopment';
+      // Determine collection based on service type
+      let collectionName = '';
+      switch (serviceType) {
+        case 'app':
+          collectionName = 'appDevelopment';
+          break;
+        case 'web':
+          collectionName = 'webDevelopment';
+          break;
+        case 'software':
+          collectionName = 'softwareDevelopment'; // Assuming 'softwareDevelopment' collection name
+          break;
+        default:
+          break;
+      }
 
       // Explicitly set document ID to user.uid
       await setDoc(doc(db, collectionName, user.uid), completeFormData);
@@ -155,6 +182,7 @@ export default function AddUserForm() {
                 <MenuItem value="">Select</MenuItem>
                 <MenuItem value="app">App</MenuItem>
                 <MenuItem value="web">Web</MenuItem>
+                <MenuItem value="software">Software</MenuItem> {/* Added Software as a service type */}
               </Select>
             </FormControl>
           </Grid>
