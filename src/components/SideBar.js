@@ -107,7 +107,7 @@ const Sidebar = () => {
       </StyledListItem>
       <StyledListItem button component={Link} to="proposals" onClick={handleProposalsClick}>
         <StyledBadge badgeContent={newProposalCount > 0 && !clickedOnProposals ? newProposalCount : 0} variant="dot">
-          <ListItemText primary="Proposals" />
+          <ListItemText primary="Offers" />
         </StyledBadge>
       </StyledListItem>
       <StyledListItem button component={Link} to="user-registration" onClick={() => setClickedOnProposals(false)}>

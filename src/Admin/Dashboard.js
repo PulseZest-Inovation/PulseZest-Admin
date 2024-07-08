@@ -12,7 +12,7 @@ import UserResgistration from '../pages/UserRegister';
 import Employee from '../pages/employee';
 import Intern from '../pages/intern';
 import AttendancePage from '../components/Attendance/AttendancePage';
-import Proposals from '../pages/Proposals';
+import Proposals from '../pages/Offers';
 const drawerWidth = 240;
 
 const Root = styled('div')(({ theme }) => ({

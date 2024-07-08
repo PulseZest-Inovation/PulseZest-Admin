@@ -6,6 +6,7 @@ import { db } from '../../../../../Firebase/Firebase'; // Adjust the path as nec
 
 const Zod = ({ userId, fullName, photoUrl }) => {
   const [zodCount, setZodCount] = useState(0);
+  const [status, setStatus] = useState('');
 
   // Fetch Zod count and status from Firestore on component mount
   useEffect(() => {
@@ -15,15 +16,14 @@ const Zod = ({ userId, fullName, photoUrl }) => {
         const manageCollectionRef = collection(employeeRef, 'manage');
         const manageDocRef = doc(manageCollectionRef, userId);
         const docSnap = await getDoc(manageDocRef);
+        
         if (docSnap.exists()) {
           const { zodCount, status } = docSnap.data();
           setZodCount(zodCount || 0);
-          // Optional: If you want to handle status change on mount
-          if (status !== 'notSeen') {
-            await updateStatusInFirestore('notSeen');
-          }
+          setStatus(status || 'notSeen'); // Set status from Firestore
         } else {
           setZodCount(0);
+          setStatus('notSeen'); // Default status if document doesn't exist
           await setDoc(manageDocRef, { zodCount: 0, status: 'notSeen' }); // Create doc with default values
         }
       } catch (error) {
@@ -72,14 +72,18 @@ const Zod = ({ userId, fullName, photoUrl }) => {
     }
   };
 
-  const updateStatusInFirestore = async (status) => {
+  const updateStatusInFirestore = async (newStatus) => {
     try {
       const employeeRef = doc(db, 'employeeDetails', userId);
       const manageCollectionRef = collection(employeeRef, 'manage');
       const manageDocRef = doc(manageCollectionRef, userId);
 
-      await updateDoc(manageDocRef, { status });
-      console.log('Status updated successfully!');
+      // Update status only if it's different from the current status
+      if (newStatus !== status) {
+        await updateDoc(manageDocRef, { status: newStatus });
+        setStatus(newStatus);
+        console.log('Status updated successfully!');
+      }
     } catch (error) {
       console.error('Error updating status:', error);
     }
