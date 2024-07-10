@@ -93,6 +93,9 @@ const Sidebar = () => {
       <StyledListItem button component={Link} to="/" onClick={() => setClickedOnProposals(false)}>
         <ListItemText primary="Home" />
       </StyledListItem>
+      <StyledListItem button component={Link} to="/pulsezest-learning" onClick={() => setClickedOnProposals(false)}>
+        <ListItemText primary="PulseZest Learning" />
+      </StyledListItem>
       <StyledListItem button component={Link} to="employee-details" onClick={() => setClickedOnProposals(false)}>
         <ListItemText primary="Employee Details" />
       </StyledListItem>

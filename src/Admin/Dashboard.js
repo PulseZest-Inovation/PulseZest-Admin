@@ -13,6 +13,7 @@ import Employee from '../pages/employee';
 import Intern from '../pages/intern';
 import AttendancePage from '../components/Attendance/AttendancePage';
 import Proposals from '../pages/Offers';
+import PulseZestLearning from '../Learning/Pages/LearningAdmin/learningAdmin';
 const drawerWidth = 240;
 
 const Root = styled('div')(({ theme }) => ({
@@ -106,6 +107,7 @@ const Dashboard = () => {
   return (
     <Layout isSidebarOpen={isSidebarOpen} handleSidebarToggle={handleSidebarToggle}>
       <Routes>
+      <Route path="pulsezest-learning" element={<PulseZestLearning />} />
         <Route path="app-development" element={<AppDevelopment />} />
         <Route path="web-development" element={<WebDevelopment />} />
         <Route path="user-registration" element={<UserResgistration />} />

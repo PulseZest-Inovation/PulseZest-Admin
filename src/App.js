@@ -16,6 +16,7 @@ import AttendanceDetailsPage from './components/Attendance/AttendanceDetailsPage
 import ProtectedRoute from './Firebase/ProtectedRoute'; // Adjust the import based on your project structure
 import UnauthorizedPage from './Auth/Unauthorized/UnauthorizedPage'; 
 import ManageEmp from "./pages/Details/EmployeeDetails/ManageEmployee/manageEmp";
+import PulseZestLearning from './Learning/Pages/LearningAdmin/learningAdmin';
 import { auth } from './Firebase/Firebase'; 
 
 const AppRoutes = () => {
@@ -41,6 +42,7 @@ const AppRoutes = () => {
       {user ? (
         <>
           <Route path="/admin/*" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/pulsezest-learning" element={<ProtectedRoute><PulseZestLearning /></ProtectedRoute>} />
           <Route path="/app-development" element={<ProtectedRoute><AppDevelopment /></ProtectedRoute>} />
           <Route path="/app-development/:id" element={<ProtectedRoute><AppDevelopmentDetail /></ProtectedRoute>} />
           <Route path="/web-development" element={<ProtectedRoute><WebDevelopment /></ProtectedRoute>} />
