@@ -1,14 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { learningDb } from '../../utils/Firebase/learningFirebaseConfig'; // Adjust import as per your configuration
-import {
-  Container,
-  Typography,
-  Paper,
-  Grid,
-  Box,
-  CircularProgress,
-} from '@mui/material';
+import {Container,Typography,Paper,Box,CircularProgress,Table,TableBody,TableCell,TableContainer,TableHead,TableRow,} from '@mui/material';
 
 const UserList = () => {
   const [loading, setLoading] = useState(true);
@@ -47,19 +40,30 @@ const UserList = () => {
             <CircularProgress />
           </Box>
         ) : (
-          <Grid container spacing={3}>
-            {users.map(user => (
-              <Grid item xs={12} md={6} lg={4} key={user.id}>
-                <Paper elevation={2} style={{ padding: '10px', height: '100%' }}>
-                  <Typography variant="subtitle1"><strong>Email:</strong> {user.email}</Typography>
-                  <Typography variant="subtitle1"><strong>Name:</strong> {user.name}</Typography>
-                  <Typography variant="subtitle1"><strong>SUID:</strong> {user.suid}</Typography>
-                  <Typography variant="subtitle1"><strong>User ID:</strong> {user.userId}</Typography>
-                  {/* Add more details as needed */}
-                </Paper>
-              </Grid>
-            ))}
-          </Grid>
+          <TableContainer component={Paper}>
+            <Table aria-label="user table">
+              <TableHead>
+                <TableRow>
+                  <TableCell><strong>Email</strong></TableCell>
+                  <TableCell><strong>Name</strong></TableCell>
+                  <TableCell><strong>SUID</strong></TableCell>
+                  <TableCell><strong>User ID</strong></TableCell>
+                  {/* Add more headers as needed */}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {users.map(user => (
+                  <TableRow key={user.id}>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>{user.name}</TableCell>
+                    <TableCell>{user.suid}</TableCell>
+                    <TableCell>{user.userId}</TableCell>
+                    {/* Add more cells as needed */}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
         )}
       </Paper>
     </Container>
