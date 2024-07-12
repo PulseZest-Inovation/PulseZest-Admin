@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../../Firebase/Firebase'; // Adjust import as per your project structure
+import { db } from '../../../Firebase/Firebase'; // Adjust import as per your project structure
 
 const AttendancePage = () => {
   const navigate = useNavigate();

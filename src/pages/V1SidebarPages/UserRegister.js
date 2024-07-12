@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import Navbar from './UserRegister/Navbar';
-import AddUserForm from './UserRegister/AddUserForm';
-import EmployeeForm from './UserRegister/employeeForm';
-import InternForm from './UserRegister/internForm';
+import Navbar from '../UserRegister/Navbar';
+import AddUserForm from '../UserRegister/AddUserForm';
+import EmployeeForm from '../UserRegister/employeeForm';
+import InternForm from '../UserRegister/internForm';
 import { Container } from '@mui/material';
 
 export default function UserRegistration() {

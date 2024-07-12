@@ -4,21 +4,21 @@ import Layout from './Layout';
 
 // Import Files Fro V1 Sidebar
 
-import Home from '../pages/home';
-import AppDevelopment from '../pages/appDevelopment';
-import WebDevelopment from '../pages/webDevelopment';
-import UserResgistration from '../pages/UserRegister';
-import Employee from '../pages/employee';
-import Intern from '../pages/intern';
-import AttendancePage from '../components/Attendance/AttendancePage';
-import Offers from '../pages/Offers';
+import Home from '../pages/V1SidebarPages/home';
+import AppDevelopment from '../pages/V1SidebarPages/appDevelopment';
+import WebDevelopment from '../pages/V1SidebarPages/webDevelopment';
+import UserResgistration from '../pages/V1SidebarPages/UserRegister';
+import Employee from '../pages/V1SidebarPages/employee';
+import Intern from '../pages/V1SidebarPages/intern';
+import AttendancePage from '../components/Employee-Attendance/Attendance/AttendancePage';
+import Offers from '../pages/V1SidebarPages/Offers';
 import PulseZestLearning from '../Learning/Pages/LearningAdmin/learningAdmin';
 
 
 // Import Files Fro V2 Sidebar
 
-import V2Home from '../components/V2-Sidebar-Components/Home/home';
-import Notification from '../components/V2-Sidebar-Components/Notifications/noti';
+import V2Home from '../components/Sidebars/SideBarV2/V2-Sidebar-Components/Home/home';
+import Notification from '../components/Sidebars/SideBarV2/V2-Sidebar-Components/Notifications/noti';
 
 const Dashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);

@@ -2,8 +2,8 @@ import React from 'react';
 import { CssBaseline, Drawer, IconButton } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import AppBar from '../components/AppBar';
-import SidebarV1 from '../components/SideBar';
-import SidebarV2 from '../components/SidebarV2';
+import SidebarV1 from '../components/Sidebars/SidebarV1/SideBar';
+import SidebarV2 from '../components/Sidebars/SideBarV2/SidebarV2';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 
 const drawerWidth = 240;

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { collection, doc, getDocs, getDoc, setDoc } from 'firebase/firestore';
-import { db } from '../../Firebase/Firebase'; // Adjust import as per your project structure
+import { db } from '../../../Firebase/Firebase'; // Adjust import as per your project structure
 import { Button, Select, MenuItem, FormControl, InputLabel, Grid, TextField, CircularProgress } from '@mui/material'; // Import Material-UI components
 import { toast, ToastContainer } from 'react-toastify'; // Import toast notifications and container
 

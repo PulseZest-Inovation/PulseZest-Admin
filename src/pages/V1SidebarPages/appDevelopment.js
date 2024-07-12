@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../Firebase/Firebase'; // Adjust the path as per your project structure
+import { db } from '../../Firebase/Firebase'; // Adjust the path as per your project structure
 import {
-  Typography,
   Table,
   TableContainer,
   TableHead,
@@ -11,25 +10,26 @@ import {
   TableRow,
   TableCell,
   Paper,
+  Typography,
   Button,
-  TextField
+  TextField,
 } from '@mui/material';
 
-export default function WebDevelopment() {
-  const [webData, setWebData] = useState([]);
+const AppDevelopment = () => {
+  const [appData, setAppData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, 'webDevelopment'));
+        const querySnapshot = await getDocs(collection(db, 'appDevelopment'));
         const data = querySnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
         }));
-        setWebData(data);
+        setAppData(data);
       } catch (error) {
-        console.error('Error fetching web development data:', error);
+        console.error('Error fetching app development data:', error);
       }
     };
 
@@ -40,7 +40,7 @@ export default function WebDevelopment() {
     setSearchQuery(event.target.value);
   };
 
-  const filteredData = webData.filter((item) => {
+  const filteredData = appData.filter((item) => {
     const fullName = item.fullName ? item.fullName.toLowerCase() : '';
     const email = item.email ? item.email.toLowerCase() : '';
     const query = searchQuery.toLowerCase();
@@ -51,7 +51,7 @@ export default function WebDevelopment() {
   return (
     <div style={{ overflow: 'auto', maxHeight: '500px' }}>
       <Typography variant="h4" gutterBottom align="center">
-        Web Development Data
+        App Development Data
       </Typography>
       <TextField
         label="Search"
@@ -81,10 +81,10 @@ export default function WebDevelopment() {
                 <TableCell>{item.registrationDate}</TableCell>
                 <TableCell>
                   <Button
-                    component={Link}
-                    to={`/web-development/${item.id}`}
                     variant="contained"
                     color="primary"
+                    component={Link}
+                    to={`/app-development/${item.id}`}
                   >
                     View Details
                   </Button>
@@ -96,4 +96,6 @@ export default function WebDevelopment() {
       </TableContainer>
     </div>
   );
-}
+};
+
+export default AppDevelopment;

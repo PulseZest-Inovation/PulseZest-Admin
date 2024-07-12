@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { db } from '../Firebase/Firebase'; // Adjust the path as necessary
+import { db } from '../../Firebase/Firebase'; // Adjust the path as necessary
 import { collection, updateDoc, doc, orderBy, query, onSnapshot } from 'firebase/firestore';
 import { Select, MenuItem, FormControl, InputLabel, TextField } from '@mui/material';
 import styled from 'styled-components';
-import WebDevUserDataFetch from "./offers/webDevUser";
-import AppDevUserDataFetch from "./offers/appDevUser";
-import ContactUsDataFetch from "./offers/contactUsUser";
+import WebDevUserDataFetch from "../offers/webDevUser";
+import AppDevUserDataFetch from "../offers/appDevUser";
+import ContactUsDataFetch from "../offers/contactUsUser";
 const PageContainer = styled.div`
   padding: 20px;
   height: 100vh; /* Set the container to full viewport height */

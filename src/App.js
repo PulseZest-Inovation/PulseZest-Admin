@@ -3,24 +3,23 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 import 'react-toastify/dist/ReactToastify.css';
 import Login from './Auth/Login';
 import Dashboard from './Admin/Dashboard';
-import AppDevelopment from './pages/appDevelopment';
+import AppDevelopment from './pages/V1SidebarPages/appDevelopment';
 import AppDevelopmentDetail from './pages/Details/AppDevelopmentDetail/appDevelopmentDetail';
-import WebDevelopment from './pages/webDevelopment';
+import WebDevelopment from './pages/V1SidebarPages/webDevelopment';
 import WebDevelopmentDetail from './pages/Details/WebDevelopmentDetail/webDevelopmentDetail';
-import Employee from './pages/employee';
-import Intern from './pages/intern';
+import Employee from './pages/V1SidebarPages/employee';
+import Intern from './pages/V1SidebarPages/intern';
 import EmployeeDetails from './pages/Details/EmployeeDetails/employeeDetails';
 import InternDetails from './pages/Details/InternDetails/internDetails';
-import AttendancePage from './components/Attendance/AttendancePage';
-import AttendanceDetailsPage from './components/Attendance/AttendanceDetailsPage';
+import AttendancePage from './components/Employee-Attendance/Attendance/AttendancePage';
+import AttendanceDetailsPage from './components/Employee-Attendance/Attendance/AttendanceDetailsPage';
 import ProtectedRoute from './Firebase/ProtectedRoute'; // Adjust the import based on your project structure
 import UnauthorizedPage from './Auth/Unauthorized/UnauthorizedPage'; 
 import ManageEmp from "./pages/Details/EmployeeDetails/ManageEmployee/manageEmp";
 import PulseZestLearning from './Learning/Pages/LearningAdmin/learningAdmin';
 import { auth } from './Firebase/Firebase'; 
 
-    // V2 SideBar Routes
-import V2Home from './components/V2-Sidebar-Components/Home/home';
+
 
 const AppRoutes = () => {
   const [user, setUser] = useState(null);

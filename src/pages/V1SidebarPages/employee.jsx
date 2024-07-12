@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../Firebase/Firebase'; // Adjust the path as per your project structure
+import { db } from '../../Firebase/Firebase'; // Adjust the path as per your project structure
 import {
   Typography,
   Table,
