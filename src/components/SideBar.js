@@ -2,9 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { List, ListItem, ListItemText, Badge } from '@mui/material';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { getAuth, signOut } from 'firebase/auth';
-import { collection, onSnapshot, query } from 'firebase/firestore';
 import styled from 'styled-components';
-import { db } from "../Firebase/Firebase"; // Adjust the path as necessary
 
 const StyledBadge = styled(Badge)`
   .MuiBadge-badge {
@@ -48,35 +46,10 @@ const LogoutButton = styled.button`
 const Sidebar = () => {
   const auth = getAuth();
   const location = useLocation();
-  const [newProposalCount, setNewProposalCount] = useState(0);
   const [clickedOnProposals, setClickedOnProposals] = useState(false);
   const navigate = useNavigate();
 
-  // UseEffect to count new proposals
-  useEffect(() => {
-    const proposalCollection = collection(db, 'proposals');
-    const q = query(proposalCollection);
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const count = snapshot.docs.filter(doc => doc.data().status === 'pending').length;
-      setNewProposalCount(count);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  // Reset newProposalCount when navigating to Proposals page
-  useEffect(() => {
-    if (location.pathname === '/proposals' && clickedOnProposals) {
-      setNewProposalCount(0);
-      setClickedOnProposals(false); // Reset clicked state
-    }
-  }, [location, clickedOnProposals]);
-
-  const handleProposalsClick = () => {
-    setClickedOnProposals(true);
-    setNewProposalCount(0); // Mark all new proposals as seen when clicked
-  };
 
   const handleLogout = () => {
     signOut(auth)
@@ -108,10 +81,8 @@ const Sidebar = () => {
       <StyledListItem button component={Link} to="web-development" onClick={() => setClickedOnProposals(false)}>
         <ListItemText primary="Web Development" />
       </StyledListItem>
-      <StyledListItem button component={Link} to="proposals" onClick={handleProposalsClick}>
-        <StyledBadge badgeContent={newProposalCount > 0 && !clickedOnProposals ? newProposalCount : 0} variant="dot">
-          <ListItemText primary="Offers" />
-        </StyledBadge>
+      <StyledListItem button component={Link} to="offers" onClick={() => setClickedOnProposals(false)}>
+        <ListItemText primary="Offers" />
       </StyledListItem>
       <StyledListItem button component={Link} to="user-registration" onClick={() => setClickedOnProposals(false)}>
         <ListItemText primary="User Registration" />

@@ -50,7 +50,7 @@ const AppDevelopment = () => {
 
   return (
     <div style={{ overflow: 'auto', maxHeight: '500px' }}>
-      <Typography variant="h4" gutterBottom>
+      <Typography variant="h4" gutterBottom align="center">
         App Development Data
       </Typography>
       <TextField

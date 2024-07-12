@@ -19,6 +19,9 @@ import ManageEmp from "./pages/Details/EmployeeDetails/ManageEmployee/manageEmp"
 import PulseZestLearning from './Learning/Pages/LearningAdmin/learningAdmin';
 import { auth } from './Firebase/Firebase'; 
 
+    // V2 SideBar Routes
+import V2Home from './components/V2-Sidebar-Components/Home/home';
+
 const AppRoutes = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -54,6 +57,10 @@ const AppRoutes = () => {
           <Route path="/intern-details/:id" element={<ProtectedRoute><InternDetails /></ProtectedRoute>} />
           <Route path="/user-attendance" element={<ProtectedRoute><AttendancePage /></ProtectedRoute>} />
           <Route path="/attendance-details/:userId" element={<ProtectedRoute><AttendanceDetailsPage /></ProtectedRoute>} />
+
+        
+
+
         </>
       ) : (
         <Route path="*" element={<Navigate to="/unauthorized" />} />
