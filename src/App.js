@@ -18,6 +18,7 @@ import UnauthorizedPage from './Auth/Unauthorized/UnauthorizedPage';
 import ManageEmp from "./pages/Details/EmployeeDetails/ManageEmployee/manageEmp";
 import PulseZestLearning from './Learning/Pages/LearningAdmin/learningAdmin';
 import { auth } from './Firebase/Firebase'; 
+import ManageStudent from './Learning/Components/StudentData/ManageStudent/ManageStudent'; // Import ManageStudent component
 
 
 
@@ -56,6 +57,7 @@ const AppRoutes = () => {
           <Route path="/intern-details/:id" element={<ProtectedRoute><InternDetails /></ProtectedRoute>} />
           <Route path="/user-attendance" element={<ProtectedRoute><AttendancePage /></ProtectedRoute>} />
           <Route path="/attendance-details/:userId" element={<ProtectedRoute><AttendanceDetailsPage /></ProtectedRoute>} />
+          <Route path="/student/:uid" element={<ProtectedRoute><ManageStudent /></ProtectedRoute>} />
 
         
 

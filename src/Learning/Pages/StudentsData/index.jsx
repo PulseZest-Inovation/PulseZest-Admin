@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
-import { learningDb } from '../../utils/Firebase/learningFirebaseConfig'; // Adjust import as per your configuration
-import {Container,Typography,Paper,Box,CircularProgress,Table,TableBody,TableCell,TableContainer,TableHead,TableRow,} from '@mui/material';
+import { learningDb } from '../../utils/Firebase/learningFirebaseConfig';
+import { Container, Typography, Paper, Box, CircularProgress, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button } from '@mui/material';
+import { Link } from 'react-router-dom'; // Import Link from react-router-dom
 
 const UserList = () => {
   const [loading, setLoading] = useState(true);
@@ -32,9 +33,7 @@ const UserList = () => {
   return (
     <Container maxWidth="lg" style={{ marginTop: '20px' }}>
       <Paper elevation={3} style={{ padding: '20px' }}>
-        <Typography variant="h4" gutterBottom>
-          All Users
-        </Typography>
+      
         {loading ? (
           <Box display="flex" justifyContent="center" alignItems="center" style={{ height: '200px' }}>
             <CircularProgress />
@@ -48,7 +47,7 @@ const UserList = () => {
                   <TableCell><strong>Name</strong></TableCell>
                   <TableCell><strong>SUID</strong></TableCell>
                   <TableCell><strong>User ID</strong></TableCell>
-                  {/* Add more headers as needed */}
+                  <TableCell><strong>Action</strong></TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -57,8 +56,12 @@ const UserList = () => {
                     <TableCell>{user.email}</TableCell>
                     <TableCell>{user.name}</TableCell>
                     <TableCell>{user.suid}</TableCell>
-                    <TableCell>{user.userId}</TableCell>
-                    {/* Add more cells as needed */}
+                    <TableCell>{user.uid}</TableCell>
+                    <TableCell>
+                      <Button component={Link} to={`/student/${user.uid}`} variant="contained" color="primary">
+                        Manage
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
