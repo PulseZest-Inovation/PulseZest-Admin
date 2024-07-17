@@ -14,13 +14,18 @@ const Notification = () => {
 
   useEffect(() => {
     const fetchEmployees = async () => {
-      const querySnapshot = await getDocs(collection(db, 'employeeDetails'));
-      const employeeList = [];
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        employeeList.push({ id: doc.id, fullName: data.fullName });
-      });
-      setEmployees(employeeList);
+      try {
+        const querySnapshot = await getDocs(collection(db, 'employeeDetails'));
+        const employeeList = [];
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          employeeList.push({ id: doc.id, fullName: data.fullName });
+        });
+        setEmployees(employeeList);
+      } catch (error) {
+        toast.error('Error fetching employees.');
+        console.error('Error fetching employees:', error);
+      }
     };
 
     fetchEmployees();
@@ -65,16 +70,19 @@ const Notification = () => {
     // Prepare notification data
     const notificationData = {
       message: notificationMessage,
-      timestamp: Timestamp.fromDate(new Date())
+      timestamp: Timestamp.fromDate(new Date()),
+      sound: 'notSeen' // Add sound field with 'notSeen' value
     };
 
     // Save notification to selected employees' documents
     try {
-      for (const employeeId of selectedEmployees) {
+      const promises = selectedEmployees.map((employeeId) => {
         const employeeDocRef = doc(db, 'employeeDetails', employeeId);
         const notificationsCollectionRef = collection(employeeDocRef, 'notifications');
-        await addDoc(notificationsCollectionRef, notificationData);
-      }
+        return addDoc(notificationsCollectionRef, notificationData);
+      });
+
+      await Promise.all(promises);
 
       // Show success toast
       toast.success('Notification sent successfully.');
@@ -141,9 +149,9 @@ const Notification = () => {
               onClick={handleSendNotification}
               sx={{ marginTop: 2 }}
               disabled={loading} // Disable button when loading is true
-              startIcon={<SendIcon />} // Use Send icon from MUI icons
+              startIcon={loading ? <CircularProgress size={24} /> : <SendIcon />} // Show progress or Send icon
             >
-              {loading ? <CircularProgress size={24} /> : 'Send Notification'}
+              Send Notification
             </Button>
           </Box>
         </Grid>
