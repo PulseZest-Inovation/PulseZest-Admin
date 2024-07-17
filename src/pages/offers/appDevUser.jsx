@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../Firebase/Firebase'; // Assuming you have configured Firebase
-import {  Typography, Accordion, AccordionSummary, AccordionDetails, Table, TableBody, TableCell, TableContainer,  TableRow, Paper, TextField, InputAdornment } from '@mui/material'; // Assuming you use Material-UI components
+import { Typography, Accordion, AccordionSummary, AccordionDetails, Table, TableBody, TableCell, TableContainer, TableRow, Paper, TextField, InputAdornment } from '@mui/material'; // Assuming you use Material-UI components
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'; // Icon for expand/collapse
 import SearchIcon from '@mui/icons-material/Search'; // Icon for search
 
@@ -25,21 +25,30 @@ const AppDeveloperFormPage = () => {
       }
     };
 
+    // Fetch forms initially
     fetchForms();
+
+    // Set up interval for auto-fetching every 30 seconds
+    const interval = setInterval(fetchForms, 30000);
+
+    // Clean up interval on component unmount
+    return () => clearInterval(interval);
   }, []);
 
+  // Filter forms based on searchQuery whenever it changes
   useEffect(() => {
-    // Filter forms based on searchQuery whenever it changes
     const filteredResults = forms.filter(form =>
       form.fullname.toLowerCase().includes(searchQuery.toLowerCase())
     );
     setFilteredForms(filteredResults);
   }, [searchQuery, forms]);
 
+  // Handle search query change
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
   };
 
+  // Render form details in a Table inside an Accordion
   const renderFormDetails = (form) => (
     <TableContainer component={Paper} className="mb-4">
       <Table aria-label="form details">
@@ -103,8 +112,8 @@ const AppDeveloperFormPage = () => {
             ),
           }}
         />
-         <br></br>
-         <br></br>
+        <br />
+        <br />
       </div>
       {filteredForms.map((form) => (
         <Accordion key={form.id} className="mb-4" style={{ backgroundColor: '#f0f0f0', border: '1px solid #ddd' }}>

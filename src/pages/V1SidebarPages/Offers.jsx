@@ -6,6 +6,8 @@ import styled from 'styled-components';
 import WebDevUserDataFetch from "../offers/webDevUser";
 import AppDevUserDataFetch from "../offers/appDevUser";
 import ContactUsDataFetch from "../offers/contactUsUser";
+import Demo from '../offers/demo';
+
 const PageContainer = styled.div`
   padding: 20px;
   height: 100vh; /* Set the container to full viewport height */
@@ -205,7 +207,9 @@ const Offers = () => {
       case 'App Form':
         return <div><h1 className="text-3xl font-bold mb-4 text-center">App Form details here </h1> <AppDevUserDataFetch/></div>; 
       case 'Contact Us Form':
-        return <div><h1 className="text-3xl font-bold mb-4 text-center">Contact Us Form details here </h1> <ContactUsDataFetch/> </div>; 
+        return <div><h1 className="text-3xl font-bold mb-4 text-center"> </h1> <ContactUsDataFetch/> </div>;
+        case 'Demo Form':
+          return <div><h1 className="text-3xl font-bold mb-4 text-center"> </h1> <Demo/> </div>;  
       default:
         return null;
     }
@@ -246,6 +250,14 @@ const Offers = () => {
         onClick={() => setSelectedOption('Contact Us Form')}
       >
         Contact Us Form
+      </div>
+      <div 
+        style={hoveredIndex === 4 ? { ...linkStyle, ...linkHoverStyle } : linkStyle}
+        onMouseEnter={() => handleMouseEnter(4)}
+        onMouseLeave={handleMouseLeave}
+        onClick={() => setSelectedOption('Demo Form')}
+      >
+       Demo Form
       </div>
     </div>
       {renderContent()}

@@ -10,6 +10,7 @@ const UsersPage = () => {
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Fetch users data initially and set up auto-fetching every 30 seconds
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -25,22 +26,30 @@ const UsersPage = () => {
       }
     };
 
+    // Fetch users initially
     fetchUsers();
+
+    // Set up interval for auto-fetching every 30 seconds
+    const interval = setInterval(fetchUsers, 30000);
+
+    // Clean up interval on component unmount
+    return () => clearInterval(interval);
   }, []);
 
+  // Filter users based on search query whenever it changes
   useEffect(() => {
-    // Filter users based on searchQuery whenever it changes
     const filteredResults = users.filter(user =>
       user.fullname.toLowerCase().includes(searchQuery.toLowerCase())
     );
     setFilteredUsers(filteredResults);
   }, [searchQuery, users]);
 
+  // Handle search query change
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
   };
 
-
+  // Render user details in a Table inside an Accordion
   const renderUserDetails = (user) => (
     <TableContainer component={Paper} className="mb-4">
       <Table aria-label="user details">
@@ -102,7 +111,6 @@ const UsersPage = () => {
   return (
     <div className="container mx-auto px-4 py-10">
       <div className="mb-4 flex items-center justify-between">
-        
         <TextField
           id="search"
           label="Search by Name"
@@ -118,8 +126,6 @@ const UsersPage = () => {
             ),
           }}
         />
-        <br></br>
-        <br></br>
       </div>
       {filteredUsers.map((user) => (
         <Accordion key={user.id} className="mb-4" style={{ backgroundColor: '#f0f0f0', border: '1px solid #ddd' }}>
