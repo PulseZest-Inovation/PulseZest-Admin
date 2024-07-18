@@ -17,21 +17,21 @@ const InvoiceTemplate = () => {
             const userData = userDoc.data();
             const userId = userDoc.id;
 
-            // Fetch user's courses
+            // Fetch user's courses with payment details
             const userCoursesCollectionRef = collection(learningFirestore, `users/${userId}/courses`);
             const userCoursesSnapshot = await getDocs(userCoursesCollectionRef);
             const userCourses = await Promise.all(
               userCoursesSnapshot.docs.map(async courseDoc => {
-                const courseId = courseDoc.id;
                 const courseData = courseDoc.data();
-                
-                // Fetch course details
+                const courseId = courseDoc.id;
+
+                // Fetch course name
                 const courseDocRef = doc(learningFirestore, 'courses', courseId);
                 const courseDetails = await getDoc(courseDocRef);
 
                 return {
-                  id: courseId,
-                  ...courseDetails.data(),
+                  courseId,
+                  name: courseDetails.data().name,
                   ...courseData // Include payment details from the user's course doc
                 };
               })
@@ -63,16 +63,23 @@ const InvoiceTemplate = () => {
   const generateAndSaveInvoice = async (user) => {
     const lastInvoiceNumber = "PZ-2402"; // This should be fetched from the database ideally.
     const newInvoiceNumber = generateInvoiceNumber(lastInvoiceNumber);
-    // Example: Implement your invoice generation and saving logic here
+
     const element = invoiceContainerRef.current;
 
     // Generate PDF
-    const invoicePDF = await html2pdf().from(element).outputPdf();
-    const blob = new Blob([invoicePDF], { type: 'application/pdf' });
+    const opt = {
+      margin: 1,
+      filename: `${newInvoiceNumber}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+
+    const invoicePDF = await html2pdf().from(element).set(opt).output('blob');
 
     // Save PDF to Firestore
     const invoiceRef = doc(collection(learningFirestore, 'invoice', user.userId));
-    await setDoc(invoiceRef, { invoiceNumber: newInvoiceNumber, pdf: blob });
+    await setDoc(invoiceRef, { invoiceNumber: newInvoiceNumber, pdf: invoicePDF });
 
     console.log('Saved Invoice as PDF');
   };
@@ -116,32 +123,31 @@ const InvoiceTemplate = () => {
               <tr>
                 <th style={styles.tableHeader}>#</th>
                 <th style={styles.tableHeader}>Product details</th>
-                <th style={styles.tableHeader}>Price</th>
+                <th style={styles.tableHeader}>Amount</th>
                 <th style={styles.tableHeader}>Qty.</th>
-                <th style={styles.tableHeader}>VAT</th>
+                <th style={styles.tableHeader}>Order ID</th>
+                <th style={styles.tableHeader}>Payment ID</th>
                 <th style={styles.tableHeader}>Subtotal</th>
-                <th style={styles.tableHeader}>Subtotal + VAT</th>
               </tr>
             </thead>
             <tbody>
               {user.courses.map((course, index) => (
-                <tr key={course.id}>
+                <tr key={course.courseId}>
                   <td style={styles.tableContent}>{index + 1}</td>
                   <td style={styles.tableContent}>{course.name}</td>
-                  <td style={styles.tableContent}>${course.price}</td>
+                  <td style={styles.tableContent}>{course.amount}</td>
                   <td style={styles.tableContent}>1</td>
-                  <td style={styles.tableContent}>{course.vat}%</td>
-                  <td style={styles.tableContent}>${course.price}</td>
-                  <td style={styles.tableContent}>${calculateTotal(course)}</td>
+               
+                  <td style={styles.tableContent}>{course.orderId}</td>
+                  <td style={styles.tableContent}>{course.paymentId}</td>
+                  <td style={styles.tableContent}>{course.amount}</td>
                 </tr>
               ))}
             </tbody>
           </table>
 
           <div style={styles.totals}>
-            <div style={styles.totalItem}>Net total: ${calculateNetTotal(user.courses)}</div>
-            <div style={styles.totalItem}>VAT total: ${calculateVatTotal(user.courses)}</div>
-            <div style={styles.totalItem}>Total: ${calculateNetTotal(user.courses)}</div>
+            <div style={styles.totalItem}>Net total: {calculateNetTotal(user.courses)}</div>
           </div>
 
           <div style={styles.paymentDetails}>
@@ -164,28 +170,12 @@ const InvoiceTemplate = () => {
   };
 
   // Helper functions to calculate totals, adjust as per your requirements
-  const calculateTotal = (course) => {
-    const subtotal = course.price;
-    const vatAmount = (course.vat / 100) * subtotal;
-    const total = subtotal + vatAmount;
-    return total.toFixed(2);
-  };
-
   const calculateNetTotal = (courses) => {
     let netTotal = 0;
     courses.forEach(course => {
-      netTotal += course.price;
+      netTotal += course.amount;
     });
     return netTotal.toFixed(2);
-  };
-
-  const calculateVatTotal = (courses) => {
-    let vatTotal = 0;
-    courses.forEach(course => {
-      const vatAmount = (course.vat / 100) * course.price;
-      vatTotal += vatAmount;
-    });
-    return vatTotal.toFixed(2);
   };
 
   return (
