@@ -36,7 +36,7 @@ const Demo = () => {
   return (
     <Container>
       <Box my={4}>
-        <Typography variant="h4" gutterBottom>Demo Requests</Typography>
+        <Typography variant="h4" gutterBottom>School Application Demo</Typography>
         <TextField
           label="Search"
           variant="outlined"

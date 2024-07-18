@@ -4,7 +4,6 @@ import { Typography, CircularProgress, Avatar, Grid, Card, CardContent, Button, 
 import { learningDb } from '../../../utils/Firebase/learningFirebaseConfig';
 import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
 import GetAppIcon from '@mui/icons-material/GetApp'; // Import the Download icon
-
 const ManageStudent = () => {
   const { uid } = useParams();
   const [loading, setLoading] = useState(true);

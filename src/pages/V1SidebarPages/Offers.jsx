@@ -208,7 +208,7 @@ const Offers = () => {
         return <div><h1 className="text-3xl font-bold mb-4 text-center">App Form details here </h1> <AppDevUserDataFetch/></div>; 
       case 'Contact Us Form':
         return <div><h1 className="text-3xl font-bold mb-4 text-center"> </h1> <ContactUsDataFetch/> </div>;
-        case 'Demo Form':
+        case 'School Application Demo':
           return <div><h1 className="text-3xl font-bold mb-4 text-center"> </h1> <Demo/> </div>;  
       default:
         return null;
