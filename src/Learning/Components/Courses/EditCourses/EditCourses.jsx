@@ -20,8 +20,8 @@ const EditCourses = () => {
   const [courses, setCourses] = useState([]);
   const [newChapterName, setNewChapterName] = useState('');
   const [newTopicName, setNewTopicName] = useState('');
-  const [newVideoLink, setNewVideoLink] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [newVideoLinks, setNewVideoLinks] = useState({});
+    const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -99,10 +99,11 @@ const EditCourses = () => {
   };
 
   const handleAddVideoLink = async (courseId, chapterIndex, topicIndex) => {
+    const newVideoLink = newVideoLinks[`${courseId}-${chapterIndex}-${topicIndex}`] || '';
     const updatedChapters = [...courses.find(course => course.id === courseId).chapters];
     updatedChapters[chapterIndex].topics[topicIndex].videoLinks.push(newVideoLink);
     handleLocalUpdate(courseId, { chapters: updatedChapters });
-    setNewVideoLink('');
+    setNewVideoLinks(prevState => ({ ...prevState, [`${courseId}-${chapterIndex}-${topicIndex}`]: '' }));
     await handleSaveToDatabase(courseId, { chapters: updatedChapters });
   };
 
@@ -115,7 +116,7 @@ const EditCourses = () => {
 
   const handleChange = (courseId, chapterIndex, topicIndex, videoLinkIndex, field, value) => {
     const updatedChapters = [...courses.find(course => course.id === courseId).chapters];
-
+  
     if (chapterIndex !== null && topicIndex === null) {
       updatedChapters[chapterIndex][field] = value;
     } else if (chapterIndex !== null && topicIndex !== null && videoLinkIndex === null) {
@@ -123,7 +124,7 @@ const EditCourses = () => {
     } else if (chapterIndex !== null && topicIndex !== null && videoLinkIndex !== null) {
       updatedChapters[chapterIndex].topics[topicIndex].videoLinks[videoLinkIndex] = value;
     }
-
+  
     handleLocalUpdate(courseId, { chapters: updatedChapters });
   };
 
@@ -184,7 +185,7 @@ const EditCourses = () => {
                                   <TextField
                                     label={`Video Link ${videoLinkIndex + 1}`}
                                     value={videoLink}
-                                    onChange={(e) => handleChange(course.id, chapterIndex, topicIndex, videoLinkIndex, null, e.target.value)}
+                                    onChange={(e) => handleChange(course.id, chapterIndex, topicIndex, videoLinkIndex, 'videoLinks', e.target.value)}
                                     onBlur={() => handleSaveChange(course.id, chapterIndex, topicIndex)}
                                     margin="normal"
                                     variant="outlined"
@@ -200,8 +201,8 @@ const EditCourses = () => {
                               ))}
                               <TextField
                                 label="New Video Link"
-                                value={newVideoLink}
-                                onChange={(e) => setNewVideoLink(e.target.value)}
+                                value={newVideoLinks[`${course.id}-${chapterIndex}-${topicIndex}`] || ''}
+                                onChange={(e) => setNewVideoLinks({ ...newVideoLinks, [`${course.id}-${chapterIndex}-${topicIndex}`]: e.target.value })}
                                 margin="normal"
                                 variant="outlined"
                                 fullWidth
