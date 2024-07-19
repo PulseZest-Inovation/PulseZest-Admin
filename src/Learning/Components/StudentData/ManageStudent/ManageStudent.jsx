@@ -2,10 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Typography, CircularProgress, Avatar, Grid, Card, CardContent, Button, IconButton } from '@mui/material';
 import { learningDb } from '../../../utils/Firebase/learningFirebaseConfig';
-import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
+import { doc, getDoc, collection, getDocs, query, where } from 'firebase/firestore';
 import GetAppIcon from '@mui/icons-material/GetApp'; // Import the Download icon
-import Invoice from '../../../../components/Invoice/invoice';
-
 
 const ManageStudent = () => {
   const { uid } = useParams();
@@ -67,9 +65,29 @@ const ManageStudent = () => {
     fetchCourses();
   }, [uid]);
 
-  const handleDownloadInvoice = (courseId) => {
-    // Placeholder function for downloading invoice
-    console.log(`Downloading invoice for course ID: ${courseId}`);
+  const handleDownloadInvoice = async (courseId) => {
+    try {
+      const invoicesCollection = collection(learningDb, `invoices/${uid}/history`);
+      const invoiceQuery = query(invoicesCollection, where('courseId', '==', courseId));
+      const invoiceSnapshot = await getDocs(invoiceQuery);
+
+      if (!invoiceSnapshot.empty) {
+        const invoiceData = invoiceSnapshot.docs[0].data();
+        const pdfUrl = invoiceData.pdfUrl;
+
+        // Trigger the download
+        const link = document.createElement('a');
+        link.href = pdfUrl;
+        link.download = `${invoiceData.invoiceNumber}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        console.warn(`Invoice not found for course ID ${courseId}`);
+      }
+    } catch (error) {
+      console.error('Error fetching invoice:', error);
+    }
   };
 
   if (loading) {
@@ -151,7 +169,6 @@ const ManageStudent = () => {
           </CardContent>
         </Card>
       ))}
-     <Invoice/>
     </div>
   );
 };

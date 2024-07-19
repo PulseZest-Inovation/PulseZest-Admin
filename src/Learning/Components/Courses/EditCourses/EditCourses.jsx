@@ -9,7 +9,12 @@ import {
   AccordionSummary,
   AccordionDetails,
   Grid,
-  CircularProgress
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -21,8 +26,10 @@ const EditCourses = () => {
   const [newChapterName, setNewChapterName] = useState('');
   const [newTopicName, setNewTopicName] = useState('');
   const [newVideoLinks, setNewVideoLinks] = useState({});
-    const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [courseToDelete, setCourseToDelete] = useState(null);
 
   useEffect(() => {
     fetchCourses();
@@ -66,6 +73,23 @@ const EditCourses = () => {
       setCourses(courses.filter(course => course.id !== courseId));
     } catch (error) {
       console.error('Error deleting course:', error);
+    }
+  };
+
+  const handleDeleteClick = (course) => {
+    setCourseToDelete(course); // Set the course to delete
+    setDialogOpen(true); // Open the dialog
+  };
+
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+    setCourseToDelete(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (courseToDelete) {
+      await handleDeleteCourse(courseToDelete.id);
+      handleDialogClose();
     }
   };
 
@@ -405,7 +429,7 @@ const EditCourses = () => {
               <Button
                 variant="contained"
                 color="secondary"
-                onClick={() => handleDeleteCourse(course.id)}
+                onClick={() => handleDeleteClick(course)}
                 style={{ marginLeft: '10px' }}
               >
                 Delete Course
@@ -414,6 +438,28 @@ const EditCourses = () => {
           </Accordion>
         ))
       )}
+
+      <Dialog
+        open={dialogOpen}
+        onClose={handleDialogClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{"Confirm Delete"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            {courseToDelete ? `Are you sure you want to delete the course "${courseToDelete.name}"?` : ''}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDialogClose} color="primary">
+            No
+          </Button>
+          <Button onClick={handleConfirmDelete} color="secondary" autoFocus>
+            Yes
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

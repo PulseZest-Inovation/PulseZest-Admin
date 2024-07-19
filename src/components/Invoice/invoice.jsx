@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { doc, getDoc, collection, getDocs, setDoc, query, where } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage"; // Removed duplicate getStorage import
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { learningFirestore, learningstorage } from '../../Learning/utils/Firebase/learningFirebaseConfig';
 import html2pdf from 'html2pdf.js';
 
 const InvoiceTemplate = () => {
   const [users, setUsers] = useState([]);
-  const invoiceContainerRef = useRef();
+  const invoiceContainerRefs = useRef({});
   const gst = 18; // Hardcoded GST percentage
   const processing = useRef(false);
 
@@ -38,7 +38,7 @@ const InvoiceTemplate = () => {
                   courseId,
                   name: courseDetails.data().name,
                   dateProcessed: courseDate,
-                  amount: courseData.amount, // Include amount and payment details
+                  amount: courseData.amount || 0, // Include amount and payment details
                   paymentId: courseData.paymentId,
                   orderId: courseData.orderId
                 };
@@ -83,7 +83,6 @@ const InvoiceTemplate = () => {
     const lastInvoiceNumber = await fetchLastInvoiceNumber();
     const prefix = lastInvoiceNumber.split('-')[0];
     const numberPart = lastInvoiceNumber.split('-')[1];
-    // Increment number
     const newNumber = String(Number(numberPart) + 1);
     return `${prefix}-${newNumber}`;
   };
@@ -95,7 +94,6 @@ const InvoiceTemplate = () => {
 
   const generateAndSaveInvoice = async (user, course) => {
     try {
-      // Check if the invoice already exists
       const historyRef = collection(learningFirestore, `invoices/${user.userId}/history`);
       const invoiceQuery = query(historyRef, where('courseId', '==', course.courseId));
       const invoiceSnapshot = await getDocs(invoiceQuery);
@@ -105,11 +103,14 @@ const InvoiceTemplate = () => {
       }
 
       const newInvoiceNumber = await generateInvoiceNumber();
-      const element = invoiceContainerRef.current;
+      const element = invoiceContainerRefs.current[`${user.userId}-${course.courseId}`];
 
       // Set invoice number and date
       document.getElementById(`invoiceNumber-${user.userId}-${course.courseId}`).innerText = `Invoice #: ${newInvoiceNumber}`;
       document.getElementById(`invoiceDate-${user.userId}-${course.courseId}`).innerText = `Date: ${formatDate(course.dateProcessed)}`;
+
+      // Wait for rendering to complete
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
       // Generate PDF
       const opt = {
@@ -133,7 +134,7 @@ const InvoiceTemplate = () => {
       await setDoc(docRef, {
         invoiceNumber: newInvoiceNumber,
         pdfUrl: pdfURL,
-        courseId: course.courseId // Save the courseId to check for duplicates
+        courseId: course.courseId,
       });
 
       // Update last invoice number
@@ -149,7 +150,6 @@ const InvoiceTemplate = () => {
   // Sequentially generate and save invoices to avoid conflicts
   const processInvoicesSequentially = async () => {
     if (processing.current || users.length === 0) return;
-
     processing.current = true;
 
     for (const user of users) {
@@ -166,15 +166,15 @@ const InvoiceTemplate = () => {
   }, [users]);
 
   const renderInvoices = () => {
-    return users.flatMap(user => {
-      return user.courses.map(course => {
+    return users.flatMap(user => 
+      user.courses.map(course => {
         const courseAmount = course.amount / 100; // Convert paisa to rupees
         const courseGstAmount = (courseAmount * gst) / 100;
         const courseSubtotal = courseAmount - courseGstAmount;
 
         return (
-          <div className="invoice-wrapper" key={user.userId + course.courseId}>
-            <div ref={invoiceContainerRef} style={styles.invoiceContainer}>
+          <div key={user.userId + course.courseId}>
+            <div ref={el => (invoiceContainerRefs.current[`${user.userId}-${course.courseId}`] = el)} style={styles.invoiceContainer}>
               <div style={styles.header}>
                 <div style={styles.brand}>
                   <div style={styles.brandName}>PulseZest-Learning</div>
@@ -192,14 +192,19 @@ const InvoiceTemplate = () => {
                   <div style={styles.infoItem}>Number: +91 6396219233</div>
                   <div style={styles.infoItem}>Email: info@pulsezest.com</div>
                   <div style={styles.infoItem}>GST IN: 09ILJPK0660Q1ZC</div>
-                  <div style={styles.infoItem}>Address: India</div>
+                  <div style={styles.infoItem}>Address: Pashupati Vihar Colony </div>
+                  <div style={styles.infoItem}> 69/2 , Ground Floor</div>
+
+                 
+                  <div style={styles.infoItem}>Bareilly, Uttarpradesh,</div>
+                  <div style={styles.infoItem}>Pin-243006 </div>
+
                 </div>
 
                 <div style={styles.infoSection}>
                   <div style={styles.sectionTitle}>Student Details</div>
                   <div style={styles.infoItem}>Name: {user.name}</div>
                   <div style={styles.infoItem}>Email: {user.email}</div>
-                  <div style={styles.infoItem}>User ID: {user.userId}</div>
                   <div style={styles.infoItem}>SUID: {user.suid}</div>
                 </div>
               </div>
@@ -232,7 +237,7 @@ const InvoiceTemplate = () => {
                 <div style={styles.totalItem}>GST (₹): {courseGstAmount.toFixed(2)}</div>
                 <div style={styles.totalItem}>Total (₹): {courseAmount.toFixed(2)}</div>
               </div>
-              <div key={course.courseId} style={styles.paymentDetails}>
+              <div style={styles.paymentDetails}>
                 <div style={styles.sectionTitle}>PAYMENT DETAILS</div>
                 <div style={styles.infoItem}>Payment Id: {course.paymentId}</div>
                 <div style={styles.infoItem}>Order Id: {course.orderId}</div>
@@ -248,41 +253,15 @@ const InvoiceTemplate = () => {
             {/* Ensure each invoice renders separately */}
             <div style={{ display: 'none' }}>
               {/* This hidden div is used to force each invoice to render separately */}
-              <div ref={invoiceContainerRef}></div>
             </div>
           </div>
         );
-      });
-    });
-  };
-
-  // Helper functions to calculate totals, adjust as per your requirements
-  const calculateGrossTotal = (courses) => {
-    let grossTotal = 0;
-    courses.forEach(course => {
-      grossTotal += course.amount / 100; // Convert paisa to rupees
-    });
-    return grossTotal;
-  };
-
-  const calculateGst = (courses) => {
-    let gstAmount = 0;
-    courses.forEach(course => {
-      gstAmount += (course.amount / 100) * gst / 100; // GST amount in rupees
-    });
-    return gstAmount;
-  };
-
-  const calculateNetTotal = (courses) => {
-    let netTotal = 0;
-    courses.forEach(course => {
-      netTotal += (course.amount / 100) * (1 - gst / 100); // Amount after GST deduction
-    });
-    return netTotal;
+      })
+    );
   };
 
   return (
-    <div style={{ display: 'none' }}>
+    <div>
       {renderInvoices()}
     </div>
   );
@@ -328,7 +307,7 @@ const styles = {
   },
   companyInfo: {
     display: 'flex',
-    justifyContent: 'space-between',
+    justifyContent: 'space-evenly',
     marginBottom: '20px',
     backgroundColor: '#F7F7F7',
     padding: '20px',
@@ -338,10 +317,12 @@ const styles = {
     flex: '1',
   },
   sectionTitle: {
+   
+    
     fontSize: '18px',
     fontWeight: 'bold',
     marginBottom: '10px',
-    color: '#333333',
+    color: '#0437F2',
   },
   productTable: {
     width: '100%',
@@ -352,6 +333,7 @@ const styles = {
     backgroundColor: '#F7F7F7',
     padding: '10px',
     fontWeight: 'bold',
+    color: '#0437F2',
     textAlign: 'left',
     borderBottom: '2px solid #CCCCCC',
   },
@@ -369,10 +351,13 @@ const styles = {
   totalItem: {
     marginBottom: '5px',
     fontWeight: 'bold',
+    
   },
   paymentDetails: {
     marginTop: '20px',
     padding: '20px',
+    fontWeight: 'bold',
+    color: '#0437F2',
     backgroundColor: '#F7F7F7',
     borderRadius: '8px',
   },
@@ -386,14 +371,14 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     marginTop: '30px',
-    borderTop: '2px solid #CCCCCC',
+    borderTop: '2px solid #1C2833',
     paddingTop: '10px',
     backgroundColor: '#F7F7F7',
     borderRadius: '18px',
   },
   footerItem: {
     fontSize: '12px',
-    color: '#666666',
+    color: '#0437F2',
   },
 };
 
