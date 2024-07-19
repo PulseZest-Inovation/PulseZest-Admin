@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { doc, getDoc, collection, getDocs, setDoc, query, where } from "firebase/firestore";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { learningFirestore } from '../../Learning/utils/Firebase/learningFirebaseConfig';
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage"; // Removed duplicate getStorage import
+import { learningFirestore, learningstorage } from '../../Learning/utils/Firebase/learningFirebaseConfig';
 import html2pdf from 'html2pdf.js';
 
 const InvoiceTemplate = () => {
@@ -123,7 +123,6 @@ const InvoiceTemplate = () => {
       const invoicePDF = await html2pdf().from(element).set(opt).output('blob');
 
       // Upload PDF to Firebase Storage
-      const learningstorage = getStorage();
       const storageRef = ref(learningstorage, `invoices/${user.userId}/${newInvoiceNumber}.pdf`);
       await uploadBytes(storageRef, invoicePDF);
 
