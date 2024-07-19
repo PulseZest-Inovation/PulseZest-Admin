@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { doc, getDoc, collection, getDocs, setDoc } from "firebase/firestore";
+import React, { useState, useEffect, useRef } from 'react';
+import { doc, getDoc, collection, getDocs, setDoc, query, where } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { learningFirestore } from '../../Learning/utils/Firebase/learningFirebaseConfig';
 import html2pdf from 'html2pdf.js';
 
 const InvoiceTemplate = () => {
   const [users, setUsers] = useState([]);
-  const invoiceContainerRef = React.useRef();
+  const invoiceContainerRef = useRef();
   const gst = 18; // Hardcoded GST percentage
+  const processing = useRef(false);
 
   useEffect(() => {
+    // Fetch users and their courses
     const fetchAllUsers = async () => {
       try {
         const usersCollectionRef = collection(learningFirestore, 'users');
@@ -36,7 +38,9 @@ const InvoiceTemplate = () => {
                   courseId,
                   name: courseDetails.data().name,
                   dateProcessed: courseDate,
-                  ...courseData, // Include payment details from the user's course doc
+                  amount: courseData.amount, // Include amount and payment details
+                  paymentId: courseData.paymentId,
+                  orderId: courseData.orderId
                 };
               })
             );
@@ -50,11 +54,6 @@ const InvoiceTemplate = () => {
         );
 
         setUsers(usersData.filter(user => user.courses.length > 0)); // Only include users with courses
-        usersData.forEach(user => {
-          if (user.courses.length > 0) {
-            generateAndSaveInvoice(user); // Generate and save invoice only for users with courses
-          }
-        });
       } catch (error) {
         console.error('Error fetching users data:', error);
       }
@@ -80,19 +79,13 @@ const InvoiceTemplate = () => {
     }
   };
 
-  const generateInvoiceNumber = (lastInvoice) => {
-    const parts = lastInvoice.split('-');
-    const year = new Date().getFullYear().toString().slice(-2);
-    let staticPart = parts[0];
-    let numberPart = parts[1];
-    
-    if (isNaN(numberPart)) {
-      numberPart = "2400";
-    }
-
+  const generateInvoiceNumber = async () => {
+    const lastInvoiceNumber = await fetchLastInvoiceNumber();
+    const prefix = lastInvoiceNumber.split('-')[0];
+    const numberPart = lastInvoiceNumber.split('-')[1];
     // Increment number
-    numberPart = String(Number(numberPart) + 1);
-    return `PZ-${numberPart}`;
+    const newNumber = String(Number(numberPart) + 1);
+    return `${prefix}-${newNumber}`;
   };
 
   const formatDate = (timestamp) => {
@@ -100,21 +93,23 @@ const InvoiceTemplate = () => {
     return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
   };
 
-  const generateAndSaveInvoice = async (user) => {
+  const generateAndSaveInvoice = async (user, course) => {
     try {
-      const lastInvoiceNumber = await fetchLastInvoiceNumber();
-
-      if (!lastInvoiceNumber) {
-        console.error('Failed to fetch last invoice number');
-        return;
+      // Check if the invoice already exists
+      const historyRef = collection(learningFirestore, `invoices/${user.userId}/history`);
+      const invoiceQuery = query(historyRef, where('courseId', '==', course.courseId));
+      const invoiceSnapshot = await getDocs(invoiceQuery);
+      if (!invoiceSnapshot.empty) {
+        console.log('Invoice already exists for course:', course.courseId);
+        return; // Invoice already exists, skip generating
       }
 
-      const newInvoiceNumber = generateInvoiceNumber(lastInvoiceNumber);
+      const newInvoiceNumber = await generateInvoiceNumber();
       const element = invoiceContainerRef.current;
 
       // Set invoice number and date
-      document.getElementById(`invoiceNumber-${user.userId}`).innerText = `Invoice #: ${newInvoiceNumber}`;
-      document.getElementById(`invoiceDate-${user.userId}`).innerText = `Date: ${formatDate(user.courses[0].dateProcessed)}`;
+      document.getElementById(`invoiceNumber-${user.userId}-${course.courseId}`).innerText = `Invoice #: ${newInvoiceNumber}`;
+      document.getElementById(`invoiceDate-${user.userId}-${course.courseId}`).innerText = `Date: ${formatDate(course.dateProcessed)}`;
 
       // Generate PDF
       const opt = {
@@ -128,18 +123,19 @@ const InvoiceTemplate = () => {
       const invoicePDF = await html2pdf().from(element).set(opt).output('blob');
 
       // Upload PDF to Firebase Storage
-      const storage = getStorage();
-      const storageRef = ref(storage, `invoices/${user.userId}/${newInvoiceNumber}.pdf`);
+      const learningstorage = getStorage();
+      const storageRef = ref(learningstorage, `invoices/${user.userId}/${newInvoiceNumber}.pdf`);
       await uploadBytes(storageRef, invoicePDF);
 
       const pdfURL = await getDownloadURL(storageRef);
 
       // Save PDF URL to Firestore
-      const invoiceRef = doc(collection(learningFirestore, 'invoices'), user.userId);
-      await setDoc(invoiceRef, {
+      const docRef = doc(historyRef);
+      await setDoc(docRef, {
         invoiceNumber: newInvoiceNumber,
         pdfUrl: pdfURL,
-      }, { merge: true });
+        courseId: course.courseId // Save the courseId to check for duplicates
+      });
 
       // Update last invoice number
       const lastInvoiceRef = doc(learningFirestore, 'invoiceNumbers', 'lastInvoice');
@@ -151,99 +147,113 @@ const InvoiceTemplate = () => {
     }
   };
 
-  const renderInvoices = () => {
-    return users.map(user => {
-      if (user.courses.length === 0) {
-        return null;
+  // Sequentially generate and save invoices to avoid conflicts
+  const processInvoicesSequentially = async () => {
+    if (processing.current || users.length === 0) return;
+
+    processing.current = true;
+
+    for (const user of users) {
+      for (const course of user.courses) {
+        await generateAndSaveInvoice(user, course);
       }
-    
-      const courseDetails = user.courses.map((course, index) => {
+    }
+
+    processing.current = false;
+  };
+
+  useEffect(() => {
+    processInvoicesSequentially();
+  }, [users]);
+
+  const renderInvoices = () => {
+    return users.flatMap(user => {
+      return user.courses.map(course => {
         const courseAmount = course.amount / 100; // Convert paisa to rupees
         const courseGstAmount = (courseAmount * gst) / 100;
         const courseSubtotal = courseAmount - courseGstAmount;
 
         return (
-          <tr key={course.courseId}>
-            <td style={styles.tableContent}>{index + 1}</td>
-            <td style={styles.tableContent}>{course.name}</td>
-            <td style={styles.tableContent}>{courseSubtotal.toFixed(2)}</td>
-            <td style={styles.tableContent}>1</td>
-            <td style={styles.tableContent}>{courseGstAmount.toFixed(2)}</td>
-            <td style={styles.tableContent}>{courseAmount.toFixed(2)}</td>
-          </tr>
-        );
-      });
-
-      return (
-        <div className="invoice-wrapper" key={user.userId}>
-          <div ref={invoiceContainerRef} style={styles.invoiceContainer}>
-            <div style={styles.header}>
-              <div style={styles.brand}>
-                <div style={styles.brandName}>PulseZest-Learning</div>
-              </div>
-              <div style={styles.invoiceInfo}>
-                <div style={styles.infoItem}>GST NO: 09ILJPK0660Q1ZC</div>
-                <div style={styles.infoItem} id={`invoiceDate-${user.userId}`}>Date: </div>
-                <div style={styles.infoItem} id={`invoiceNumber-${user.userId}`}>Invoice #: </div>
-              </div>
-            </div>
-
-            <div style={styles.companyInfo}>
-              <div style={styles.infoSection}>
-                <div style={styles.sectionTitle}>PulseZest Learning</div>
-                <div style={styles.infoItem}>Number: +91 6396219233</div>
-                <div style={styles.infoItem}>Email: info@pulsezest.com</div>
-                <div style={styles.infoItem}>GST IN: 09ILJPK0660Q1ZC</div>
-                <div style={styles.infoItem}>Address: India</div>
+          <div className="invoice-wrapper" key={user.userId + course.courseId}>
+            <div ref={invoiceContainerRef} style={styles.invoiceContainer}>
+              <div style={styles.header}>
+                <div style={styles.brand}>
+                  <div style={styles.brandName}>PulseZest-Learning</div>
+                </div>
+                <div style={styles.invoiceInfo}>
+                  <div style={styles.infoItem}>GST NO: 09ILJPK0660Q1ZC</div>
+                  <div style={styles.infoItem} id={`invoiceDate-${user.userId}-${course.courseId}`}>Date: </div>
+                  <div style={styles.infoItem} id={`invoiceNumber-${user.userId}-${course.courseId}`}>Invoice #: </div>
+                </div>
               </div>
 
-              <div style={styles.infoSection}>
-                <div style={styles.sectionTitle}>Student Details</div>
-                <div style={styles.infoItem}>Name: {user.name}</div>
-                <div style={styles.infoItem}>Email: {user.email}</div>
-                <div style={styles.infoItem}>SUID: {user.suid}</div>
+              <div style={styles.companyInfo}>
+                <div style={styles.infoSection}>
+                  <div style={styles.sectionTitle}>PulseZest Learning</div>
+                  <div style={styles.infoItem}>Number: +91 6396219233</div>
+                  <div style={styles.infoItem}>Email: info@pulsezest.com</div>
+                  <div style={styles.infoItem}>GST IN: 09ILJPK0660Q1ZC</div>
+                  <div style={styles.infoItem}>Address: India</div>
+                </div>
+
+                <div style={styles.infoSection}>
+                  <div style={styles.sectionTitle}>Student Details</div>
+                  <div style={styles.infoItem}>Name: {user.name}</div>
+                  <div style={styles.infoItem}>Email: {user.email}</div>
+                  <div style={styles.infoItem}>User ID: {user.userId}</div>
+                  <div style={styles.infoItem}>SUID: {user.suid}</div>
+                </div>
               </div>
-            </div>
 
-            <table style={styles.productTable}>
-              <thead>
-                <tr>
-                  <th style={styles.tableHeader}>#</th>
-                  <th style={styles.tableHeader}>Product details</th>
-                  <th style={styles.tableHeader}>Amount (₹)</th>
-                  <th style={styles.tableHeader}>Qty.</th>
-                  <th style={styles.tableHeader}>Tax Amount (₹)</th>
-                  <th style={styles.tableHeader}>Total (₹)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {courseDetails}
-              </tbody>
-            </table>
+              <table style={styles.productTable}>
+                <thead>
+                  <tr>
+                    <th style={styles.tableHeader}>#</th>
+                    <th style={styles.tableHeader}>Product details</th>
+                    <th style={styles.tableHeader}>Amount (₹)</th>
+                    <th style={styles.tableHeader}>Qty.</th>
+                    <th style={styles.tableHeader}>Tax Amount (₹)</th>
+                    <th style={styles.tableHeader}>Total (₹)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style={styles.tableContent}>1</td>
+                    <td style={styles.tableContent}>{course.name}</td>
+                    <td style={styles.tableContent}>{courseSubtotal.toFixed(2)}</td>
+                    <td style={styles.tableContent}>1</td>
+                    <td style={styles.tableContent}>{courseGstAmount.toFixed(2)}</td>
+                    <td style={styles.tableContent}>{courseAmount.toFixed(2)}</td>
+                  </tr>
+                </tbody>
+              </table>
 
-            <div style={styles.totals}>
-              <div style={styles.totalItem}>Net total (₹): {calculateNetTotal(user.courses).toFixed(2)}</div>
-              <div style={styles.totalItem}>GST (₹): {calculateGst(user.courses).toFixed(2)}</div>
-              <div style={styles.totalItem}>Total (₹): {calculateGrossTotal(user.courses).toFixed(2)}</div>
-            </div>
-            {user.courses.map(course => (
+              <div style={styles.totals}>
+                <div style={styles.totalItem}>Net total (₹): {courseSubtotal.toFixed(2)}</div>
+                <div style={styles.totalItem}>GST (₹): {courseGstAmount.toFixed(2)}</div>
+                <div style={styles.totalItem}>Total (₹): {courseAmount.toFixed(2)}</div>
+              </div>
               <div key={course.courseId} style={styles.paymentDetails}>
                 <div style={styles.sectionTitle}>PAYMENT DETAILS</div>
                 <div style={styles.infoItem}>Payment Id: {course.paymentId}</div>
                 <div style={styles.infoItem}>Order Id: {course.orderId}</div>
               </div>
-            ))}
-            <h1 style={{ fontSize: '24px', margin: '0 0 0 auto', color: '#555', position: 'relative', left: '230px' }}>Love From ❤️ PulseZest</h1>
+              <h1 style={{ fontSize: '24px', margin: '0 0 0 auto', color: '#555', position: 'relative', left: '230px' }}>Love From ❤️ PulseZest</h1>
 
-            <div style={styles.footer}>
-              <div style={styles.footerItem}>PulseZest-Learning</div>
-              <div style={styles.footerItem}>info@pulsezest.com</div>
-              <div style={styles.footerItem}>+91 6396219233</div>
+              <div style={styles.footer}>
+                <div style={styles.footerItem}>PulseZest-Learning</div>
+                <div style={styles.footerItem}>info@pulsezest.com</div>
+                <div style={styles.footerItem}>+91 6396219233</div>
+              </div>
+            </div>
+            {/* Ensure each invoice renders separately */}
+            <div style={{ display: 'none' }}>
+              {/* This hidden div is used to force each invoice to render separately */}
+              <div ref={invoiceContainerRef}></div>
             </div>
           </div>
-          <button style={{ display: 'none' }} onClick={() => generateAndSaveInvoice(user)}>Generate and Save Invoice</button>
-        </div>
-      );
+        );
+      });
     });
   };
 
@@ -273,7 +283,7 @@ const InvoiceTemplate = () => {
   };
 
   return (
-    <div>
+    <div style={{ display: 'none' }}>
       {renderInvoices()}
     </div>
   );

@@ -4,6 +4,8 @@ import { Typography, CircularProgress, Avatar, Grid, Card, CardContent, Button, 
 import { learningDb } from '../../../utils/Firebase/learningFirebaseConfig';
 import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
 import GetAppIcon from '@mui/icons-material/GetApp'; // Import the Download icon
+import Invoice from '../../../../components/Invoice/invoice';
+
 
 const ManageStudent = () => {
   const { uid } = useParams();
@@ -149,7 +151,7 @@ const ManageStudent = () => {
           </CardContent>
         </Card>
       ))}
-     
+     <Invoice/>
     </div>
   );
 };

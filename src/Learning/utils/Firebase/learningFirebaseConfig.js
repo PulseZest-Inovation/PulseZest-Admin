@@ -1,6 +1,7 @@
 import { initializeApp, getApps } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getStorage } from 'firebase/storage';
 
 const LearningfirebaseConfig = {
     apiKey: "AIzaSyBMKu_qb0DMUnaetfAZFwT67XADFfmNHMw",
@@ -25,5 +26,5 @@ if (!getApps().length) {
 const learningAuth = getAuth(learningApp);
 const learningFirestore = getFirestore(learningApp);
 const learningDb = learningFirestore;
-
-export { learningApp, learningAuth, learningDb, learningFirestore };
+const learningstorage = getStorage(learningApp)
+export { learningApp, learningAuth, learningDb, learningFirestore, learningstorage };
