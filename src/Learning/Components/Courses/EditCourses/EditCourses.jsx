@@ -26,6 +26,7 @@ const EditCourses = () => {
   const [newChapterName, setNewChapterName] = useState('');
   const [newTopicName, setNewTopicName] = useState('');
   const [newVideoLinks, setNewVideoLinks] = useState({});
+  const [newTopicDescription, setNewTopicDescription] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -109,9 +110,14 @@ const EditCourses = () => {
 
   const handleAddTopic = async (courseId, chapterIndex) => {
     const updatedChapters = [...courses.find(course => course.id === courseId).chapters];
-    updatedChapters[chapterIndex].topics.push({ topicName: newTopicName, videoLinks: [] });
+    updatedChapters[chapterIndex].topics.push({ 
+      topicName: newTopicName, 
+      topicDescription: newTopicDescription, // Added the new field
+      videoLinks: [] 
+    });
     handleLocalUpdate(courseId, { chapters: updatedChapters });
     setNewTopicName('');
+    setNewTopicDescription(''); // Clear the new topic description input
     await handleSaveToDatabase(courseId, { chapters: updatedChapters });
   };
 
@@ -204,6 +210,18 @@ const EditCourses = () => {
                               />
                             </AccordionSummary>
                             <AccordionDetails>
+                              <TextField
+                                label="Topic Description"
+                                value={topic.topicDescription}
+                                onChange={(e) => handleChange(course.id, chapterIndex, topicIndex, null, 'topicDescription', e.target.value)}
+                                onBlur={() => handleSaveChange(course.id, chapterIndex)}
+                                margin="normal"
+                                variant="outlined"
+                                fullWidth
+                                multiline
+                                rows={2}
+                                style={{ marginBottom: '10px' }}
+                              />
                               {topic.videoLinks && topic.videoLinks.map((videoLink, videoLinkIndex) => (
                                 <div key={videoLinkIndex} style={{ marginBottom: '10px', display: 'flex', alignItems: 'center' }}>
                                   <TextField
@@ -256,6 +274,17 @@ const EditCourses = () => {
                           margin="normal"
                           variant="outlined"
                           fullWidth
+                        />
+                        <TextField
+                          label="New Topic Description"
+                          value={newTopicDescription}
+                          onChange={(e) => setNewTopicDescription(e.target.value)}
+                          margin="normal"
+                          variant="outlined"
+                          fullWidth
+                          multiline
+                          rows={2}
+                          style={{ marginTop: '10px' }}
                         />
                         <Button
                           variant="contained"
@@ -425,7 +454,7 @@ const EditCourses = () => {
               >
                 {saving ? <CircularProgress size={24} /> : 'Save Changes'}
               </Button>
-
+  
               <Button
                 variant="contained"
                 color="secondary"
@@ -438,7 +467,7 @@ const EditCourses = () => {
           </Accordion>
         ))
       )}
-
+  
       <Dialog
         open={dialogOpen}
         onClose={handleDialogClose}
