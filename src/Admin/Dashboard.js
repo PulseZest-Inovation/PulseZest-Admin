@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import Layout from './Layout';
 
-// Import Files Fro V1 Sidebar
+// Import Files For V1 Sidebar
 
 import Home from '../pages/V1SidebarPages/home';
 import AppDevelopment from '../pages/V1SidebarPages/appDevelopment';
@@ -15,10 +15,11 @@ import Offers from '../pages/V1SidebarPages/Offers';
 import PulseZestLearning from '../Learning/Pages/LearningAdmin/learningAdmin';
 
 
-// Import Files Fro V2 Sidebar
+// Import Files For V2 Sidebar
 
 import V2Home from '../components/Sidebars/SideBarV2/V2-Sidebar-Components/Home/home';
 import Notification from '../components/Sidebars/SideBarV2/V2-Sidebar-Components/Notifications/noti';
+import EmailTemp from '../components/Sidebars/SideBarV2/V2-Sidebar-Components/EmailTemp/temp';
 
 const Dashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -58,6 +59,8 @@ const Dashboard = () => {
 
               <Route path="/V2-home" element={<V2Home />} />
               <Route path="/notifiaction-portal" element={<Notification />} />
+              <Route path="/email-temp" element={<EmailTemp />} />
+
               </Routes>
 
 

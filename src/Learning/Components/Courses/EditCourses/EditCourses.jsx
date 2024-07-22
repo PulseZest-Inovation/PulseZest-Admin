@@ -25,7 +25,8 @@ const EditCourses = () => {
   const [courses, setCourses] = useState([]);
   const [newChapterName, setNewChapterName] = useState('');
   const [newTopicName, setNewTopicName] = useState('');
-  const [newVideoLinks, setNewVideoLinks] = useState({});
+  const [newVideoLink, setNewVideoLink] = useState('');
+  const [newVideoDescription, setNewVideoDescription] = useState('');
   const [newTopicDescription, setNewTopicDescription] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -57,7 +58,6 @@ const EditCourses = () => {
       course.id === courseId ? { ...course, ...updatedFields } : course
     ));
   };
-
   const handleSaveToDatabase = async (courseId, fieldsToUpdate) => {
     try {
       const docRef = doc(learningDb, 'courses', courseId);
@@ -78,8 +78,8 @@ const EditCourses = () => {
   };
 
   const handleDeleteClick = (course) => {
-    setCourseToDelete(course); // Set the course to delete
-    setDialogOpen(true); // Open the dialog
+    setCourseToDelete(course);
+    setDialogOpen(true);
   };
 
   const handleDialogClose = () => {
@@ -94,12 +94,13 @@ const EditCourses = () => {
     }
   };
 
-  const handleAddChapter = async (courseId) => {
-    const updatedChapters = [...courses.find(course => course.id === courseId).chapters || [], { chapterName: newChapterName, topics: [] }];
-    handleLocalUpdate(courseId, { chapters: updatedChapters });
-    setNewChapterName('');
-    await handleSaveToDatabase(courseId, { chapters: updatedChapters });
-  };
+ const handleAddChapter = async (courseId) => {
+  const course = courses.find(course => course.id === courseId);
+  const updatedChapters = [...course.chapters || [], { chapterName: newChapterName, topics: [] }];
+  handleLocalUpdate(courseId, { chapters: updatedChapters });
+  setNewChapterName('');
+  await handleSaveToDatabase(courseId, { chapters: updatedChapters });
+};
 
   const handleDeleteChapter = async (courseId, chapterIndex) => {
     const updatedChapters = [...courses.find(course => course.id === courseId).chapters];
@@ -110,14 +111,14 @@ const EditCourses = () => {
 
   const handleAddTopic = async (courseId, chapterIndex) => {
     const updatedChapters = [...courses.find(course => course.id === courseId).chapters];
-    updatedChapters[chapterIndex].topics.push({ 
-      topicName: newTopicName, 
-      topicDescription: newTopicDescription, // Added the new field
-      videoLinks: [] 
+    updatedChapters[chapterIndex].topics.push({
+      topicName: newTopicName,
+      topicDescription: newTopicDescription,
+      videoLinks: []
     });
     handleLocalUpdate(courseId, { chapters: updatedChapters });
     setNewTopicName('');
-    setNewTopicDescription(''); // Clear the new topic description input
+    setNewTopicDescription('');
     await handleSaveToDatabase(courseId, { chapters: updatedChapters });
   };
 
@@ -129,11 +130,11 @@ const EditCourses = () => {
   };
 
   const handleAddVideoLink = async (courseId, chapterIndex, topicIndex) => {
-    const newVideoLink = newVideoLinks[`${courseId}-${chapterIndex}-${topicIndex}`] || '';
     const updatedChapters = [...courses.find(course => course.id === courseId).chapters];
-    updatedChapters[chapterIndex].topics[topicIndex].videoLinks.push(newVideoLink);
+    updatedChapters[chapterIndex].topics[topicIndex].videoLinks.push({ link: newVideoLink, description: newVideoDescription });
     handleLocalUpdate(courseId, { chapters: updatedChapters });
-    setNewVideoLinks(prevState => ({ ...prevState, [`${courseId}-${chapterIndex}-${topicIndex}`]: '' }));
+    setNewVideoLink('');
+    setNewVideoDescription('');
     await handleSaveToDatabase(courseId, { chapters: updatedChapters });
   };
 
@@ -146,23 +147,25 @@ const EditCourses = () => {
 
   const handleChange = (courseId, chapterIndex, topicIndex, videoLinkIndex, field, value) => {
     const updatedChapters = [...courses.find(course => course.id === courseId).chapters];
-  
+
     if (chapterIndex !== null && topicIndex === null) {
       updatedChapters[chapterIndex][field] = value;
     } else if (chapterIndex !== null && topicIndex !== null && videoLinkIndex === null) {
       updatedChapters[chapterIndex].topics[topicIndex][field] = value;
     } else if (chapterIndex !== null && topicIndex !== null && videoLinkIndex !== null) {
-      updatedChapters[chapterIndex].topics[topicIndex].videoLinks[videoLinkIndex] = value;
+      // Ensure video link is an object
+      if (typeof updatedChapters[chapterIndex].topics[topicIndex].videoLinks[videoLinkIndex] === 'string') {
+        updatedChapters[chapterIndex].topics[topicIndex].videoLinks[videoLinkIndex] = { link: '', description: '' };
+      }
+      updatedChapters[chapterIndex].topics[topicIndex].videoLinks[videoLinkIndex][field] = value;
     }
-  
+
     handleLocalUpdate(courseId, { chapters: updatedChapters });
   };
 
-  const handleSaveChange = async (courseId, chapterIndex, topicIndex = null) => {
+  const handleSaveChange = async (courseId, chapterIndex, topicIndex = null, videoLinkIndex = null) => {
     const updatedChapters = [...courses.find(course => course.id === courseId).chapters];
-    if (chapterIndex !== null && topicIndex === null) {
-      await handleSaveToDatabase(courseId, { chapters: updatedChapters });
-    }
+    await handleSaveToDatabase(courseId, { chapters: updatedChapters });
   };
 
   return (
@@ -203,7 +206,7 @@ const EditCourses = () => {
                                 label="Topic Name"
                                 value={topic.topicName}
                                 onChange={(e) => handleChange(course.id, chapterIndex, topicIndex, null, 'topicName', e.target.value)}
-                                onBlur={() => handleSaveChange(course.id, chapterIndex)}
+                                onBlur={() => handleSaveChange(course.id, chapterIndex, topicIndex)}
                                 margin="normal"
                                 variant="outlined"
                                 fullWidth
@@ -214,7 +217,7 @@ const EditCourses = () => {
                                 label="Topic Description"
                                 value={topic.topicDescription}
                                 onChange={(e) => handleChange(course.id, chapterIndex, topicIndex, null, 'topicDescription', e.target.value)}
-                                onBlur={() => handleSaveChange(course.id, chapterIndex)}
+                                onBlur={() => handleSaveChange(course.id, chapterIndex, topicIndex)}
                                 margin="normal"
                                 variant="outlined"
                                 fullWidth
@@ -223,16 +226,33 @@ const EditCourses = () => {
                                 style={{ marginBottom: '10px' }}
                               />
                               {topic.videoLinks && topic.videoLinks.map((videoLink, videoLinkIndex) => (
-                                <div key={videoLinkIndex} style={{ marginBottom: '10px', display: 'flex', alignItems: 'center' }}>
+                                <div key={videoLinkIndex} style={{ marginBottom: '10px' }}>
                                   <TextField
                                     label={`Video Link ${videoLinkIndex + 1}`}
-                                    value={videoLink}
-                                    onChange={(e) => handleChange(course.id, chapterIndex, topicIndex, videoLinkIndex, 'videoLinks', e.target.value)}
-                                    onBlur={() => handleSaveChange(course.id, chapterIndex, topicIndex)}
+                                    value={videoLink.link}
+                                    onChange={(e) => handleChange(course.id, chapterIndex, topicIndex, videoLinkIndex, 'link', e.target.value)}
+                                    onBlur={() => handleSaveChange(course.id, chapterIndex, topicIndex, videoLinkIndex)}
                                     margin="normal"
                                     variant="outlined"
                                     fullWidth
-                                    style={{ marginRight: '10px' }}
+                                    style={{ marginBottom: '10px' }}
+                                  />
+                                  <TextField
+                                    label="Video Description"
+                                    value={videoLink.description}
+                                    onChange={(e) => handleChange(course.id, chapterIndex, topicIndex, videoLinkIndex, 'description', e.target.value)}
+                                    onBlur={() => handleSaveChange(course.id, chapterIndex, topicIndex, videoLinkIndex)}
+                                    margin="normal"
+                                    variant="outlined"
+                                    fullWidth
+                                    multiline
+                                    rows={4}
+                                    style={{ marginBottom: '10px' }}
+                                  />
+                                  <Typography variant="body1">Preview:</Typography>
+                                  <div
+                                    style={{ border: '1px solid #ccc', padding: '10px', marginBottom: '10px' }}
+                                    dangerouslySetInnerHTML={{ __html: videoLink.description }}
                                   />
                                   <IconButton
                                     onClick={() => handleDeleteVideoLink(course.id, chapterIndex, topicIndex, videoLinkIndex)}
@@ -243,16 +263,28 @@ const EditCourses = () => {
                               ))}
                               <TextField
                                 label="New Video Link"
-                                value={newVideoLinks[`${course.id}-${chapterIndex}-${topicIndex}`] || ''}
-                                onChange={(e) => setNewVideoLinks({ ...newVideoLinks, [`${course.id}-${chapterIndex}-${topicIndex}`]: e.target.value })}
+                                value={newVideoLink}
+                                onChange={(e) => setNewVideoLink(e.target.value)}
                                 margin="normal"
                                 variant="outlined"
                                 fullWidth
-                                style={{ marginRight: '10px' }}
+                                style={{ marginBottom: '10px' }}
+                              />
+                              <TextField
+                                label="New Video Description"
+                                value={newVideoDescription}
+                                onChange={(e) => setNewVideoDescription(e.target.value)}
+                                margin="normal"
+                                variant="outlined"
+                                fullWidth
+                                multiline
+                                rows={4}
+                                style={{ marginBottom: '10px' }}
                               />
                               <Button
                                 variant="contained"
                                 onClick={() => handleAddVideoLink(course.id, chapterIndex, topicIndex)}
+                                style={{ marginBottom: '10px' }}
                               >
                                 Add Video Link
                               </Button>
@@ -454,7 +486,7 @@ const EditCourses = () => {
               >
                 {saving ? <CircularProgress size={24} /> : 'Save Changes'}
               </Button>
-  
+
               <Button
                 variant="contained"
                 color="secondary"
@@ -467,7 +499,7 @@ const EditCourses = () => {
           </Accordion>
         ))
       )}
-  
+
       <Dialog
         open={dialogOpen}
         onClose={handleDialogClose}

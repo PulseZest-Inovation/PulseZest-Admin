@@ -11,6 +11,9 @@ const SidebarV2 = () => {
       <ListItem button component={Link} to="notifiaction-portal">
         <ListItemText primary="V2 - Notification" />
       </ListItem>
+      <ListItem button component={Link} to="email-temp">
+        <ListItemText primary="V2 - Email Temp" />
+      </ListItem>
       {/* Add more items as needed */}
     </List>
   );
