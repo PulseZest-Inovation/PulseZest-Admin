@@ -8,6 +8,8 @@ import AppDevUserDataFetch from "../offers/appDevUser";
 import ContactUsDataFetch from "../offers/contactUsUser";
 import Demo from '../offers/demo';
 
+import FormDats from '../../components/FormsData/formsData'; // Adjust the path as necessary
+
 const PageContainer = styled.div`
   padding: 20px;
   height: 100vh; /* Set the container to full viewport height */
@@ -44,7 +46,6 @@ const OfferItem = styled.div`
   font-weight: bold;
   color: #333;
   transition: background-color 0.3s ease; /* Smooth transition for background-color */
-
   position: relative;
   overflow: hidden;
   &:after {
@@ -66,8 +67,6 @@ const OfferItem = styled.div`
   }
 `;
 
-
-
 const SearchBarContainer = styled.div`
   margin-bottom: 20px;
 `;
@@ -76,46 +75,69 @@ const SearchBar = styled(TextField)`
   width: 300px;
 `;
 
+const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+`;
+
+const Button = styled.div`
+  cursor: pointer;
+  padding: 10px 20px;
+  text-decoration: none;
+  color: #fff;
+  border-radius: 4px;
+  background-color: ${(props) => (props.active ? '#555' : '#333')};
+  transition: background-color 0.3s ease;
+  margin: 0 5px;
+  font-size: 16px;
+  display: flex; 
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+`;
+
+const navContainerStyle = {
+  display: 'flex',
+  justifyContent: 'space-around',
+  alignItems: 'center',
+  height: '60px',
+  backgroundColor: '#333',
+  color: '#fff',
+  padding: '0 20px',
+  boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+  borderBottom: '1px solid #444',
+};
+
+const linkStyle = {
+  cursor: 'pointer',
+  padding: '10px 20px',
+  textDecoration: 'none',
+  color: '#fff',
+  borderRadius: '4px',
+  transition: 'background-color 0.3s ease, color 0.3s ease',
+  margin: '0 5px',
+  fontSize: '16px',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  height: '100%',
+};
+
+const linkHoverStyle = {
+  backgroundColor: '#555',
+};
+
 const Offers = () => {
   const [offers, setOffers] = useState([]);
+  const [view, setView] = useState('Offers');
   const [filteredOffers, setFilteredOffers] = useState([]);
   const [selectedOption, setSelectedOption] = useState('Phone Proposals');
   const [searchQuery, setSearchQuery] = useState('');
-  const [hoveredIndex, setHoveredIndex] = React.useState(null);
+  const [hoveredIndex, setHoveredIndex] = useState(null);
 
   const handleMouseEnter = (index) => setHoveredIndex(index);
   const handleMouseLeave = () => setHoveredIndex(null);
-
-  const linkStyle = {
-    cursor: 'pointer',
-    padding: '10px 20px',
-    textDecoration: 'none',
-    color: '#fff',
-    borderRadius: '4px',
-    transition: 'background-color 0.3s ease, color 0.3s ease',
-    margin: '0 5px',
-    fontSize: '16px',
-    display: 'flex', 
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '100%',
-  };
-  
-  const linkHoverStyle = {
-    backgroundColor: '#555',
-  };
-  
-  const navContainerStyle = {
-    display: 'flex',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    height: '60px',
-    backgroundColor: '#333',
-    color: '#fff',
-    padding: '0 20px',
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-    borderBottom: '1px solid #444',
-  };
 
   useEffect(() => {
     const fetchOffers = async () => {
@@ -128,7 +150,6 @@ const Offers = () => {
           ...doc.data(),
         }));
         setOffers(offersList);
-        // Set filtered offers initially to all offers
         setFilteredOffers(offersList);
       });
 
@@ -158,11 +179,15 @@ const Offers = () => {
   };
 
   const renderContent = () => {
+    if (view === 'Forms') {
+      return <FormDats />;
+    }
+
     switch (selectedOption) {
       case 'Phone Proposals':
         return (
           <>
-          <br></br>
+            <br />
             <SearchBarContainer>
               <SearchBar
                 variant="outlined"
@@ -203,13 +228,33 @@ const Offers = () => {
           </>
         );
       case 'Web Form':
-        return <div><h1 className="text-3xl font-bold mb-4 text-center">Web Form details here </h1><WebDevUserDataFetch/> </div>; 
+        return (
+          <div>
+            <h1 className="text-3xl font-bold mb-4 text-center">Web Form details here</h1>
+            <WebDevUserDataFetch />
+          </div>
+        );
       case 'App Form':
-        return <div><h1 className="text-3xl font-bold mb-4 text-center">App Form details here </h1> <AppDevUserDataFetch/></div>; 
+        return (
+          <div>
+            <h1 className="text-3xl font-bold mb-4 text-center">App Form details here</h1>
+            <AppDevUserDataFetch />
+          </div>
+        );
       case 'Contact Us Form':
-        return <div><h1 className="text-3xl font-bold mb-4 text-center"> </h1> <ContactUsDataFetch/> </div>;
-        case 'School Application Demo':
-          return <div><h1 className="text-3xl font-bold mb-4 text-center"> </h1> <Demo/> </div>;  
+        return (
+          <div>
+            <h1 className="text-3xl font-bold mb-4 text-center"></h1>
+            <ContactUsDataFetch />
+          </div>
+        );
+      case 'School Application Demo':
+        return (
+          <div>
+            <h1 className="text-3xl font-bold mb-4 text-center"></h1>
+            <Demo />
+          </div>
+        );
       default:
         return null;
     }
@@ -217,50 +262,64 @@ const Offers = () => {
 
   return (
     <PageContainer>
-      <u>    <h1>Offers Section</h1></u>
-      <div style={navContainerStyle}>
-      <div 
-        style={hoveredIndex === 0 ? { ...linkStyle, ...linkHoverStyle } : linkStyle}
-        onMouseEnter={() => handleMouseEnter(0)}
-        onMouseLeave={handleMouseLeave}
-        onClick={() => setSelectedOption('Phone Proposals')}
-      >
-        Phone Proposals
-      </div>
-      <div 
-        style={hoveredIndex === 1 ? { ...linkStyle, ...linkHoverStyle } : linkStyle}
-        onMouseEnter={() => handleMouseEnter(1)}
-        onMouseLeave={handleMouseLeave}
-        onClick={() => setSelectedOption('Web Form')}
-      >
-        Web Form
-      </div>
-      <div 
-        style={hoveredIndex === 2 ? { ...linkStyle, ...linkHoverStyle } : linkStyle}
-        onMouseEnter={() => handleMouseEnter(2)}
-        onMouseLeave={handleMouseLeave}
-        onClick={() => setSelectedOption('App Form')}
-      >
-        App Form
-      </div>
-      <div 
-        style={hoveredIndex === 3 ? { ...linkStyle, ...linkHoverStyle } : linkStyle}
-        onMouseEnter={() => handleMouseEnter(3)}
-        onMouseLeave={handleMouseLeave}
-        onClick={() => setSelectedOption('Contact Us Form')}
-      >
-        Contact Us Form
-      </div>
-      <div 
-        style={hoveredIndex === 4 ? { ...linkStyle, ...linkHoverStyle } : linkStyle}
-        onMouseEnter={() => handleMouseEnter(4)}
-        onMouseLeave={handleMouseLeave}
-        onClick={() => setSelectedOption('Demo Form')}
-      >
-       Demo Form
-      </div>
-    </div>
-      {renderContent()}
+      <ButtonContainer>
+        <Button active={view === 'Offers'} onClick={() => setView('Offers')}>
+          Offers
+        </Button>
+        <Button active={view === 'Forms'} onClick={() => setView('Forms')}>
+          Forms
+        </Button>
+      </ButtonContainer>
+
+      {view === 'Forms' ? (
+        <FormDats />
+      ) : (
+        <>
+          <div style={navContainerStyle}>
+            <div
+              style={hoveredIndex === 0 ? { ...linkStyle, ...linkHoverStyle } : linkStyle}
+              onMouseEnter={() => handleMouseEnter(0)}
+              onMouseLeave={handleMouseLeave}
+              onClick={() => setSelectedOption('Phone Proposals')}
+            >
+              Phone Proposals
+            </div>
+            <div
+              style={hoveredIndex === 1 ? { ...linkStyle, ...linkHoverStyle } : linkStyle}
+              onMouseEnter={() => handleMouseEnter(1)}
+              onMouseLeave={handleMouseLeave}
+              onClick={() => setSelectedOption('Web Form')}
+            >
+              Web Form
+            </div>
+            <div
+              style={hoveredIndex === 2 ? { ...linkStyle, ...linkHoverStyle } : linkStyle}
+              onMouseEnter={() => handleMouseEnter(2)}
+              onMouseLeave={handleMouseLeave}
+              onClick={() => setSelectedOption('App Form')}
+            >
+              App Form
+            </div>
+            <div
+              style={hoveredIndex === 3 ? { ...linkStyle, ...linkHoverStyle } : linkStyle}
+              onMouseEnter={() => handleMouseEnter(3)}
+              onMouseLeave={handleMouseLeave}
+              onClick={() => setSelectedOption('Contact Us Form')}
+            >
+              Contact Us Form
+            </div>
+            <div
+              style={hoveredIndex === 4 ? { ...linkStyle, ...linkHoverStyle } : linkStyle}
+              onMouseEnter={() => handleMouseEnter(4)}
+              onMouseLeave={handleMouseLeave}
+              onClick={() => setSelectedOption('School Application Demo')}
+            >
+              School Demo Form
+            </div>
+          </div>
+          {renderContent()}
+        </>
+      )}
     </PageContainer>
   );
 };

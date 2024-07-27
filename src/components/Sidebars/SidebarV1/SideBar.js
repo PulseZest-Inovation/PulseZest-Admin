@@ -82,7 +82,7 @@ const Sidebar = () => {
         <ListItemText primary="Web Development" />
       </StyledListItem>
       <StyledListItem button component={Link} to="offers" onClick={() => setClickedOnProposals(false)}>
-        <ListItemText primary="Offers" />
+        <ListItemText primary="Offers / Forms" />
       </StyledListItem>
       <StyledListItem button component={Link} to="user-registration" onClick={() => setClickedOnProposals(false)}>
         <ListItemText primary="User Registration" />

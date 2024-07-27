@@ -3,6 +3,7 @@ import ManageCategory from '../ManageCategory/index';
 import ManageCourses from '../ManageCourses/index';
 import UserList from '../StudentsData/index';
 import ManageCategoriesCourses from '../CombinedC&C/index';
+import SaleTimer from '../SaleTimer/saleTimer';
 
 const LearningAdmin = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -15,6 +16,8 @@ const LearningAdmin = () => {
         return <h2>Manage Courses <ManageCourses/> </h2>;
       case 'students':
         return <h2>Students Data <UserList/> </h2>;
+        case 'saleTimer':
+          return <h2>Add Sale Timer <SaleTimer/> </h2>;
       case 'settings':
         return <h2>Combine Courses & Categories <ManageCategoriesCourses/>  </h2>;
       default:
@@ -71,6 +74,12 @@ const LearningAdmin = () => {
           onClick={() => setActiveTab('settings')}
         >
           Combine Corses & Category
+        </div>
+        <div
+          style={activeTab === 'saleTimer' ? activeLinkStyle : linkStyle}
+          onClick={() => setActiveTab('saleTimer')}
+        >
+         Add Sale Time
         </div>
         <div
           style={activeTab === 'students' ? activeLinkStyle : linkStyle}
