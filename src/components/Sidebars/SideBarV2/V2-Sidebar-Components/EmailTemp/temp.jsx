@@ -1,43 +1,29 @@
-import React, { useState } from 'react';
+import React from 'react';
 import axios from 'axios';
 
-const PaymentForm = () => {
-  const [amount, setAmount] = useState('');
-
-  const handleChange = (e) => {
-    setAmount(e.target.value);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+const PaymentButton = () => {
+  const handlePayment = async () => {
     try {
-      const response = await axios.post('http://localhost:3001/api/createPayment', { amount: Number(amount) });
-      console.log('Payment response:', response.data);
-    } catch (error) {
-      console.error('Error creating payment:', error);
-      if (error.response) {
-        console.error('Response data:', error.response.data);
-        console.error('Response status:', error.response.status);
+      const response = await axios.post('http://localhost:3001/initiate-payment', {
+        mobile: '9719688888',
+      });
+
+      if (response.data.success) {
+        alert('Payment initiated successfully');
+      } else {
+        alert('Payment failed');
       }
+    } catch (error) {
+      console.error('Payment initiation error:', error);
+      alert('Payment initiation failed. Please try again.');
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label>Amount (INR):</label>
-        <input
-          type="number"
-          name="amount"
-          value={amount}
-          onChange={handleChange}
-          required
-        />
-      </div>
-      <button type="submit">Pay</button>
-    </form>
+    <button onClick={handlePayment}>
+      Pay 1 Unit
+    </button>
   );
 };
 
-export default PaymentForm;
+export default PaymentButton;
