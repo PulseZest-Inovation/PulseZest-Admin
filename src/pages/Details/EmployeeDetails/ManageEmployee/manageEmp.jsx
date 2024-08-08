@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import ZoD from '../ManageEmployee/NavFeature/ZoD';
+
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../../../Firebase/Firebase'; // Adjust the path as necessary
+
+// Nav Features
+
+import ZoD from '../ManageEmployee/NavFeature/ZoD';
+import Roles from '../ManageEmployee/NavFeature/roles';
+
 
 const Navbar = ({ onNavClick }) => {
   const navStyle = {
@@ -25,7 +31,7 @@ const Navbar = ({ onNavClick }) => {
     textAlign: "center"
   };
 
-  const navLinks = ["Home", "ZoD", "Services", "Contact"];
+  const navLinks = ["Home", "ZoD", "Roles", "Contact"];
 
   return (
     <nav style={navStyle}>
@@ -92,6 +98,13 @@ const ManageEmp = () => {
             <p>Here you can manage all the employee-related tasks.</p>
             <p>Employee User ID: {id}</p> {/* Display the employee ID */}
           </div>
+        );
+        case "Roles":
+        return (
+          <Roles
+            userId={id}
+           
+          />
         );
       // Add other cases for "Services" and "Contact" if needed
       default:
