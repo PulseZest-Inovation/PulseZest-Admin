@@ -31,7 +31,7 @@ export default function AddUserForm() {
     description: '',
     purpose: '',
     websiteName: '',
-    customDomain: '',
+    adminDomain: '',
     domain: '',
     host: '',
     reference: ''
@@ -68,14 +68,14 @@ export default function AddUserForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate domain and customDomain fields
+    // Validate domain and adminDomain fields
     if (!isValidDomain(formData.domain)) {
       toast.error('Invalid Domain. Please enter a valid domain.');
       return;
     }
 
-    if (!isValidDomain(formData.customDomain)) {
-      toast.error('Invalid Custom Domain. Please enter a valid domain.');
+    if (!isValidDomain(formData.adminDomain)) {
+      toast.error('Invalid Admin Domain. Please enter a valid domain.');
       return;
     }
 
@@ -110,10 +110,10 @@ export default function AddUserForm() {
       // Determine collection based on service type
       let collectionName = '';
       switch (serviceType) {
-        case 'app':
+        case 'appDev':
           collectionName = 'appDevelopment';
           break;
-        case 'web':
+        case 'webDev':
           collectionName = 'webDevelopment';
           break;
         case 'software':
@@ -147,7 +147,7 @@ export default function AddUserForm() {
       description: '',
       purpose: '',
       websiteName: '',
-      customDomain: '',
+      adminDomain: '',
       domain: '',
       host: '',
       reference: ''
@@ -180,8 +180,8 @@ export default function AddUserForm() {
                 fullWidth
               >
                 <MenuItem value="">Select</MenuItem>
-                <MenuItem value="app">App</MenuItem>
-                <MenuItem value="web">Web</MenuItem>
+                <MenuItem value="appDev">App</MenuItem>
+                <MenuItem value="webDev">Web</MenuItem>
                 <MenuItem value="software">Software</MenuItem> {/* Added Software as a service type */}
               </Select>
             </FormControl>
@@ -194,7 +194,7 @@ export default function AddUserForm() {
             { name: 'phoneNumber', label: 'Phone Number' },
             { name: 'purpose', label: 'Purpose' },
             { name: 'websiteName', label: 'Website Name' },
-            { name: 'customDomain', label: 'Custom Domain' },
+            { name: 'adminDomain', label: 'Admin Domain' },
             { name: 'domain', label: 'Domain' },
             { name: 'host', label: 'Host' },
             { name: 'reference', label: 'Reference' },
