@@ -45,7 +45,7 @@ const Login = () => {
         toast.error('Invalid secret key!');
       }
     } catch (error) {
-      toast.error(error.message);
+      toast.error("Please Enter a valid Email and Password" );
     }
   };
 
