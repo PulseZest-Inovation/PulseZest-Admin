@@ -70,7 +70,7 @@ const InvoiceTemplate = () => {
         scale: 2,
         useCORS: true // Ensures CORS headers are handled
       }).then((canvas) => {
-        const imgData = canvas.toDataURL('image/png');
+        const imgData = canvas.toDataURL('image/jpeg', 0.5); // Use JPEG and set quality to 0.5 (50%)
         const pdf = new jsPDF('p', 'mm', 'a4');
         
         // Define margins
@@ -82,13 +82,13 @@ const InvoiceTemplate = () => {
         let position = margin;
   
         // Add the invoice image to the PDF
-        pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+        pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
         heightLeft -= pageHeight;
   
         while (heightLeft >= 0) {
           position = heightLeft - imgHeight + margin;
           pdf.addPage();
-          pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+          pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
           heightLeft -= pageHeight;
         }
   
