@@ -196,6 +196,7 @@ const Offers = () => {
                 onChange={(e) => handleSearch(e.target.value)}
               />
             </SearchBarContainer>
+            <div className='pb-[calc(60px+1rem)]'>
             <OffersList>
               {filteredOffers.length === 0 ? (
                 <p>No offers available</p>
@@ -208,7 +209,7 @@ const Offers = () => {
                       <p>Additional Fields:</p>
                       {/* Render additional fields as needed */}
                     </div>
-                    <FormControl variant="outlined" size="small">
+                    <FormControl variant="outlined" size="small ">
                       <InputLabel>Status</InputLabel>
                       <Select
                         value={offer.status}
@@ -225,32 +226,33 @@ const Offers = () => {
                 ))
               )}
             </OffersList>
+            </div>
           </>
         );
       case 'Web Form':
         return (
-          <div>
+          <div className='pb-[calc(60px+1rem)]'>
             <h1 className="text-3xl font-bold mb-4 text-center">Web Form details here</h1>
             <WebDevUserDataFetch />
           </div>
         );
       case 'App Form':
         return (
-          <div>
+          <div className='pb-[calc(60px+1rem)]'>
             <h1 className="text-3xl font-bold mb-4 text-center">App Form details here</h1>
             <AppDevUserDataFetch />
           </div>
         );
       case 'Contact Us Form':
         return (
-          <div>
+          <div className='pb-[calc(60px+1rem)]'>
             <h1 className="text-3xl font-bold mb-4 text-center"></h1>
             <ContactUsDataFetch />
           </div>
         );
       case 'School Application Demo':
         return (
-          <div>
+          <div className='pb-[calc(60px+1rem)]'>
             <h1 className="text-3xl font-bold mb-4 text-center"></h1>
             <Demo />
           </div>

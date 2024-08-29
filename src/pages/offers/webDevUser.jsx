@@ -51,8 +51,8 @@ const UsersPage = () => {
 
   // Render user details in a Table inside an Accordion
   const renderUserDetails = (user) => (
-    <TableContainer component={Paper} className="mb-4">
-      <Table aria-label="user details">
+    <TableContainer component={Paper} className="mb-4 ">
+      <Table aria-label="user details ">
         <TableBody>
           <TableRow>
             <TableCell component="th" scope="row" className="font-bold">Full Name</TableCell>

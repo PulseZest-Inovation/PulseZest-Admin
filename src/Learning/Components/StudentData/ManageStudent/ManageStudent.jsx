@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Typography, CircularProgress, Avatar, Grid, Card, CardContent, Button, IconButton } from '@mui/material';
-import { learningDb } from '../../../utils/Firebase/learningFirebaseConfig';
-import { doc, getDoc, collection, getDocs, query, where } from 'firebase/firestore';
+import { Typography, CircularProgress, Avatar, Grid, Card, CardContent, Button } from '@mui/material';
 import GetAppIcon from '@mui/icons-material/GetApp'; // Import the Download icon
+import { learningDb } from '../../../utils/Firebase/learningFirebaseConfig';
+import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
 
 const ManageStudent = () => {
   const { uid } = useParams();
@@ -31,6 +31,7 @@ const ManageStudent = () => {
 
             if (coursePurchaseDetailsSnap.exists()) {
               const coursePurchaseData = coursePurchaseDetailsSnap.data();
+
               const courseDetails = {
                 courseId: courseId,
                 name: courseData.name,
@@ -40,10 +41,12 @@ const ManageStudent = () => {
                 description: courseData.description,
                 amount: coursePurchaseData.amount / 100,
                 currency: coursePurchaseData.currency,
-                date: coursePurchaseData.date ? coursePurchaseData.date.toDate() : null,
-                orderId: coursePurchaseData.orderId,
-                paymentId: coursePurchaseData.paymentId,
-                signature: coursePurchaseData.signature,
+                date: coursePurchaseData.enrollDate ? new Date(coursePurchaseData.enrollDate) : null,
+                orderId: coursePurchaseData.orderNumber, // Fixed field name
+                transactionId: coursePurchaseData.transactionId, // Fixed field name
+                pdfUrl: coursePurchaseData.pdfUrl, 
+                status: coursePurchaseData.status,
+                invoiceNumber: coursePurchaseData.invoiceNumber,
               };
               coursesData.push(courseDetails);
             } else {
@@ -65,28 +68,20 @@ const ManageStudent = () => {
     fetchCourses();
   }, [uid]);
 
-  const handleDownloadInvoice = async (courseId) => {
+  const handleDownloadInvoice = async (pdfUrl) => {
     try {
-      const invoicesCollection = collection(learningDb, `invoices/${uid}/history`);
-      const invoiceQuery = query(invoicesCollection, where('courseId', '==', courseId));
-      const invoiceSnapshot = await getDocs(invoiceQuery);
-
-      if (!invoiceSnapshot.empty) {
-        const invoiceData = invoiceSnapshot.docs[0].data();
-        const pdfUrl = invoiceData.pdfUrl;
-
-        // Trigger the download
+      if (pdfUrl) {
         const link = document.createElement('a');
         link.href = pdfUrl;
-        link.download = `${invoiceData.invoiceNumber}.pdf`;
+        link.download = `invoice.pdf`; // Set a generic name for the downloaded file
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
       } else {
-        console.warn(`Invoice not found for course ID ${courseId}`);
+        console.warn('PDF URL not found');
       }
     } catch (error) {
-      console.error('Error fetching invoice:', error);
+      console.error('Error downloading invoice:', error);
     }
   };
 
@@ -129,7 +124,12 @@ const ManageStudent = () => {
                   </Grid>
                   <Grid item xs={6}>
                     <Typography variant="body2" color="textSecondary">
-                      Currency: {course.currency}
+                      Currency: INR
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Typography variant="body2" color="textSecondary">
+                      Invoice Number: {course.invoiceNumber}
                     </Typography>
                   </Grid>
                   <Grid item xs={6}>
@@ -144,12 +144,11 @@ const ManageStudent = () => {
                   </Grid>
                   <Grid item xs={6}>
                     <Typography variant="body2" color="textSecondary">
-                      Payment ID: {course.paymentId}
+                      Transaction ID: {course.transactionId} {/* Fixed field name */}
                     </Typography>
-                  </Grid>
-                  <Grid item xs={6}>
+                  </Grid> <Grid item xs={6}>
                     <Typography variant="body2" color="textSecondary">
-                      Signature: {course.signature}
+                      Status : {course.status} {/* Fixed field name */}
                     </Typography>
                   </Grid>
                 </Grid>
@@ -158,7 +157,7 @@ const ManageStudent = () => {
                 <Button
                   variant="contained"
                   color="primary"
-                  onClick={() => handleDownloadInvoice(course.courseId)}
+                  onClick={() => handleDownloadInvoice(course.pdfUrl)}
                   startIcon={<GetAppIcon />}
                   style={{ textTransform: 'none' }}
                 >
