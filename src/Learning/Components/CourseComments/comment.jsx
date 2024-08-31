@@ -280,7 +280,7 @@ const Comment = () => {
                     text: `${replyText}`,
                     createdAt: Timestamp.now(),
                     edited: false,
-                    profilePhoto: 'https://firebasestorage.googleapis.com/v0/b/pulsezest.appspot.com/o/divyansh-store%2Favtars%2Fuser-gear.png?alt=media&token=fac9f707-cd6c-4065-bc87-e2b83573ef20',
+                    profilePhoto: 'https://firebasestorage.googleapis.com/v0/b/pulsezest.appspot.com/o/divyansh-store%2Favtars%2Fundefined%20-%20Imgur.gif?alt=media&token=332f182e-4d23-4726-990a-70d7979af2a2',
                     userId: 'duggu-mgmt-PZ',
                     userName: 'duggu-Admin ⭐',
                     role: 'admin'
