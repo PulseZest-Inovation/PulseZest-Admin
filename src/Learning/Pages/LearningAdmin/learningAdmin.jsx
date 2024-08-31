@@ -5,6 +5,7 @@ import UserList from '../StudentsData/index';
 import ManageCategoriesCourses from '../CombinedC&C/index';
 import SaleTimer from '../SaleTimer/saleTimer';
 import Duration$Coupon from '../CourseDuration&Coupon/page';
+import Comment from '../../Components/CourseComments/comment';
 
 const LearningAdmin = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -23,6 +24,10 @@ const LearningAdmin = () => {
         return <h2>Duration & Coupon <Duration$Coupon /> </h2>;
       case 'settings':
         return <h2>Combine Courses & Categories <ManageCategoriesCourses /> </h2>;
+        case 'comments':
+          return <h2>Comments <Comment /> </h2>;
+
+      // Add more cases as needed for other tabs
       default:
         return <h2>Dashboard Content</h2>;
     }
@@ -101,6 +106,12 @@ const LearningAdmin = () => {
           onClick={() => setActiveTab('students')}
         >
           Students
+        </div>
+        <div
+          style={activeTab === 'comments'? activeLinkStyle : linkStyle}
+          onClick={() => setActiveTab('comments')}
+        >
+          Comments
         </div>
       </nav>
       <div style={containerStyle}>
