@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { db } from '../../Firebase/Firebase'; // Adjust the path as necessary
 import { collection, updateDoc, doc, orderBy, query, onSnapshot } from 'firebase/firestore';
 import { Select, MenuItem, FormControl, InputLabel, TextField } from '@mui/material';
+import { Timestamp } from 'firebase/firestore';
 import styled from 'styled-components';
 import WebDevUserDataFetch from "../offers/webDevUser";
 import AppDevUserDataFetch from "../offers/appDevUser";
@@ -178,6 +179,17 @@ const Offers = () => {
     setFilteredOffers(filtered);
   };
 
+  const formatDate = (timestamp) => {
+    if (timestamp instanceof Timestamp) {
+      const date = new Date(timestamp.seconds * 1000);
+      const day = String(date.getDate()).padStart(2, '0'); // Add leading zero if needed
+      const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is zero-indexed, so add 1
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    }
+    return 'N/A';
+  };
+
   const renderContent = () => {
     if (view === 'Forms') {
       return <FormDats />;
@@ -206,7 +218,7 @@ const Offers = () => {
                     <div>
                       <p>Phone Number: {offer.phoneNumber}</p>
                       <p>Status: {offer.status}</p>
-                      <p>Additional Fields:</p>
+                      <p>Date & time:   {formatDate(offer.timestamp)}  </p>
                       {/* Render additional fields as needed */}
                     </div>
                     <FormControl variant="outlined" size="small ">
